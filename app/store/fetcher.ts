@@ -31,7 +31,7 @@ const initialState: FetcherStore = {
 
   request: {
     text: '',
-    headers: [{ id: '', name: 'content-type', value: 'application/json', deleted: false }],
+    headers: [{ id: window.crypto.randomUUID(), name: 'content-type', value: 'application/json', deleted: false }],
   },
 
   response: {

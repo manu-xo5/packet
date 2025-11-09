@@ -1,5 +1,11 @@
 /// <reference types="electron-vite/node" />
 
+declare global {
+  interface Window {
+    fetcher: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
+  }
+}
+
 declare module '*.css' {
   const content: string
   export default content

@@ -1,40 +1,86 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { createAppWindow } from './app'
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
+export type FetcherResponse = {
+  headers: Record<string, string>
+  text: string
+  ok: boolean
+  status: number
+  statusText: string
+  url: string
+}
+
+async function responseToJson(r: Response) {
+  const response: FetcherResponse = {
+    headers: Object.fromEntries(r.headers.entries()),
+    text: await r.text(),
+    ok: r.ok,
+    status: r.status,
+    statusText: r.statusText,
+    url: r.url,
+  }
+
+  return response
+}
+
+async function handleFetcher(input: RequestInfo | URL, init?: RequestInit) {
+  try {
+    const res = await fetch(input, init)
+    return {
+      ok: true,
+      value: await responseToJson(res),
+    } as const
+  } catch (err) {
+    if (err instanceof Error) {
+      return {
+        ok: false,
+        error: {
+          name: err.name,
+          message: err.message,
+          stack: err.stack,
+          cause: err.cause,
+        },
+      } as const
+    } else {
+      const newErr = new Error(String(err))
+
+      return {
+        ok: false,
+        error: {
+          name: newErr.name,
+          message: newErr.message,
+          stack: newErr.stack,
+          cause: newErr.cause,
+        },
+      } as const
+    }
+  }
+}
+export type Fetcher = typeof handleFetcher
+
 app.whenReady().then(() => {
-  // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
-  // Create app window
   createAppWindow()
 
-  // Default open or close DevTools by F12 in development
-  // and ignore CommandOrControl + R in production.
-  // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
+  ipcMain.handle('fetcher', (_, ...args) => {
+    const [input, init] = args
+    return handleFetcher(input, init)
+  })
+
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
 
   app.on('activate', function () {
-    // On macOS it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) {
       createAppWindow()
     }
   })
 })
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
 })
-
-// In this file, you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.

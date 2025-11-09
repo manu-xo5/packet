@@ -4,7 +4,7 @@
     "app/index.d.ts",
     "app/**/*",
     "lib/**/*",
-    "lib/conveyor/*.d.ts",
+    "lib/**/*.d.ts",
     "resources/**/*"
   ],
   "compilerOptions": {

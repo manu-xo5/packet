@@ -1,37 +1,53 @@
 import { fetcher } from '@/lib/fetcher'
-import { SendHorizontalIcon } from 'lucide-react'
+import { Loader2Icon, SendHorizontalIcon } from 'lucide-react'
 import { METHODS, TMethod } from '../data/methods'
-import { store, useStore } from '../store/fetcher'
+import { HeaderObj, store, useStore } from '../store/fetcher'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger } from './ui/select'
+import { useActionState } from 'react'
 
-function headerDto(headers: Record<string, string>) {
-  const entries = Object.entries(headers).map(([key, value]) => [key, { value, deleted: false }])
-  return Object.fromEntries(entries)
+function headerRequestDto(headers: HeaderObj) {
+  const entries = headers
+    .filter(({ deleted }) => !deleted)
+    .filter(({ name }) => name.trim().length > 0)
+    .map(({ name, value }) => [name, value])
+
+  return Object.fromEntries(entries) as Record<string, string>
+}
+
+function headerResponseDto(headers: Record<string, string>) {
+  return Object.entries(headers).map(([name, value]) => ({
+    id: window.crypto.randomUUID(),
+    name,
+    value,
+    deleted: false,
+  }))
+}
+
+async function action() {
+  const { url, method, request } = store.getState()
+  const res = await fetcher(url, { method: method, headers: headerRequestDto(request.headers) })
+
+  if (!res.ok) {
+    console.error(res.error)
+    return
+  }
+
+  store.setState({
+    response: {
+      headers: headerResponseDto(res.value.headers),
+      text: res.value.text,
+    },
+  })
 }
 
 function UrlInput() {
   const { url, method } = useStore()
+  const [, dispatch, isPending] = useActionState(action, undefined)
 
   return (
-    <form
-      className="flex gap-3"
-      action={async () => {
-        const res = await fetcher(url, { method: method })
-        if (!res.ok) {
-          console.error(res.error)
-          return
-        }
-
-        store.setState({
-          response: {
-            headers: headerDto(res.value.headers),
-            text: res.value.text,
-          },
-        })
-      }}
-    >
+    <form className="flex gap-3" action={dispatch}>
       <Select
         value={method}
         onValueChange={(next) => {
@@ -61,7 +77,7 @@ function UrlInput() {
 
       <Button type="submit">
         Send
-        <SendHorizontalIcon />
+        {isPending ? <Loader2Icon className="animate-spin" /> : <SendHorizontalIcon />}
       </Button>
       {/* <Input placeholder="http://..." name="url" defaultValue="http://192.168.0.3:6002/auth/me" /> */}
     </form>

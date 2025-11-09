@@ -8,17 +8,25 @@ type Props = {
 } & (
   | {
       editable?: false
-      onHeaderChangeName?: never
-      onHeaderChangeValue?: never
+      onHeaderChangeName?: undefined
+      onHeaderChangeValue?: undefined
+      onDeleteChange?: undefined
     }
   | {
       editable?: true
       onHeaderChangeName: (i: number, name: string) => void
       onHeaderChangeValue: (i: number, value: string) => void
+      onDeleteChange: (i: number, deleted: boolean) => void
     }
 )
 
-export function HeaderTab({ headers, editable = false, onHeaderChangeName, onHeaderChangeValue }: Props) {
+export function HeaderTab({
+  headers,
+  editable = false,
+  onHeaderChangeName,
+  onHeaderChangeValue,
+  onDeleteChange,
+}: Props) {
   return (
     <div className="overflow-x-auto flex-1 bg-card rounded-md">
       <div className="grid grid-cols-3 text-sm">
@@ -30,7 +38,7 @@ export function HeaderTab({ headers, editable = false, onHeaderChangeName, onHea
                 className={cn(!editable && 'invisible')}
                 disabled={!editable}
                 checked={deleted}
-                readOnly
+                onChange={(ev) => onDeleteChange?.(i, ev.currentTarget.checked)}
               />
 
               <Editable

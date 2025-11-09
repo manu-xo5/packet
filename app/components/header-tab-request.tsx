@@ -7,17 +7,17 @@ export function RequestHeaderTab() {
 
   const handleAppendNewHeader = (headers: HeaderObj) => {
     const last2nd = headers.at(-2)
-    const lastlast = headers.at(-1)
-    if (!lastlast) return
+    const last = headers.at(-1)
+    if (!last) return
 
-    if (lastlast.name === '' && lastlast.value === '' && last2nd?.name === '' && last2nd?.value === '') {
+    if (last.name === '' && last.value === '' && last2nd?.name === '' && last2nd?.value === '') {
       store.setState((s) => {
         s.request.headers.pop()
       })
       return
     }
 
-    if (lastlast.name === '' && lastlast.value === '') {
+    if (last.name === '' && last.value === '') {
       return
     }
 
@@ -53,6 +53,11 @@ export function RequestHeaderTab() {
       onHeaderChangeValue={(i, value) => {
         store.setState((s) => {
           s.request.headers[i].value = value
+        })
+      }}
+      onDeleteChange={(i, isDeleted) => {
+        store.setState((s) => {
+          s.request.headers[i].deleted = isDeleted
         })
       }}
     />

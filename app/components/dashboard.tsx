@@ -1,10 +1,10 @@
 import { Activity, useState } from 'react'
-import { store, useStore } from '../store/fetcher'
+import { useStore } from '../store/fetcher'
 import { BodyTab } from './body-tab'
 import { HeaderTab } from './header-tab'
+import { RequestHeaderTab } from './header-tab-request'
 import { TabButton, TabGroup } from './ui/tabs'
 import { UrlInput } from './url-input'
-import { RequestHeaderTab } from './header-tab-request'
 
 function Dashboard() {
   return (
@@ -26,7 +26,7 @@ function Dashboard() {
 
 function RequestBox() {
   const {
-    request: { headers, text },
+    request: { text },
   } = useStore()
   const [selectedTab, setTab] = useState<'headers' | 'body' | 'cookie'>('headers')
 

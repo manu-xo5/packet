@@ -8,7 +8,7 @@ function AutoCompleteList({ htmlFor, offset = 0 }: { offset?: number; htmlFor: s
   const [top, setTop] = useState(0)
   const [input, setInput] = useState('')
   const [selected, setSelected] = useState('')
-  const scrollAnimationFrame = useRef<number>(0)
+  const listRef = useRef<HTMLUListElement>(null)
 
   const filteredHeaders = HEADERS.filter((header) => header.toLowerCase().includes(input.toLowerCase()))
   const filteredHeadersRef = useRef(filteredHeaders)
@@ -40,9 +40,11 @@ function AutoCompleteList({ htmlFor, offset = 0 }: { offset?: number; htmlFor: s
       setSelected(filteredHeadersRef.current[i])
     }
 
-    window.cancelAnimationFrame(scrollAnimationFrame.current)
-    scrollAnimationFrame.current = window.requestAnimationFrame(() => {
-      const selectedLiElem = document.querySelector(`[data-state="selected"]`)
+    window.requestAnimationFrame(() => {
+      const listElem = listRef.current
+      if (!listElem) return
+
+      const selectedLiElem = listElem.querySelector(`[data-state="selected"]`)
       if (selectedLiElem) {
         selectedLiElem.scrollIntoView({ behavior: 'instant', block: 'nearest' })
       }
@@ -125,7 +127,7 @@ function AutoCompleteList({ htmlFor, offset = 0 }: { offset?: number; htmlFor: s
   return (
     <Activity mode={isOpen ? 'visible' : 'hidden'}>
       <div style={{ top: top + 'px' }} className="bg-secondary rounded-md overflow-auto absolute py-3 shadow">
-        <ul className="h-full overflow-auto px-3 w-72 max-h-56">
+        <ul className="h-full overflow-auto px-3 w-72 max-h-56" ref={listRef}>
           {filteredHeaders.map((header) => (
             <li
               key={header}

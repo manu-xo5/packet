@@ -1,3 +1,5 @@
+import { Textarea } from './ui/textarea'
+
 export function BodyTab({ text }: { text: string }) {
   const jsonStringified = (() => {
     try {
@@ -8,9 +10,5 @@ export function BodyTab({ text }: { text: string }) {
     }
   })()
 
-  return (
-    <div className="overflow-x-auto p-3 flex-1 bg-card rounded-md">
-      <pre>{text && jsonStringified}</pre>
-    </div>
-  )
+  return <Textarea className="overflow-x-auto flex-1" value={jsonStringified} readOnly />
 }

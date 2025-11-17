@@ -1,10 +1,10 @@
 import { cn } from '@/lib/utils'
 
-type Props = {
+type EditableProps = {
   editable?: boolean
 } & React.ComponentProps<'input'>
 
-function Editable({ editable, className, value, onChange, ...inputProps }: Props) {
+function Editable({ editable, className, value, onChange, ...inputProps }: EditableProps) {
   if (editable) {
     return (
       <input
@@ -23,4 +23,4 @@ function Editable({ editable, className, value, onChange, ...inputProps }: Props
   )
 }
 
-export { Editable }
+export { Editable, type EditableProps }

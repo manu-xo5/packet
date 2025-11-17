@@ -5,6 +5,7 @@ import { HeaderTab } from './header-tab'
 import { RequestHeaderTab } from './header-tab-request'
 import { TabButton, TabGroup } from './ui/tabs'
 import { UrlInput } from './url-input'
+import { RequestBodyTab } from './body-tab-request'
 
 function Dashboard() {
   return (
@@ -13,7 +14,7 @@ function Dashboard() {
         <UrlInput />
       </div>
 
-      <div className="flex-1 flex-col flex">
+      <div className="flex-1 flex-col flex min-h-0">
         <RequestBox />
       </div>
 
@@ -25,9 +26,6 @@ function Dashboard() {
 }
 
 function RequestBox() {
-  const {
-    request: { text },
-  } = useStore()
   const [selectedTab, setTab] = useState<'headers' | 'body' | 'cookie'>('headers')
 
   return (
@@ -56,7 +54,9 @@ function RequestBox() {
       </Activity>
 
       <Activity mode={selectedTab === 'body' ? 'visible' : 'hidden'}>
-        <BodyTab text={text} />
+        <div className="flex-1 min-h-0">
+          <RequestBodyTab />
+        </div>
       </Activity>
     </div>
   )

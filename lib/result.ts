@@ -1,12 +1,13 @@
-const Ok = <V>(value: V) =>
+const ok = <V>(value: V) =>
   ({
     ok: true,
     value,
   }) as const
-const Err = (msg: string) =>
+
+const fail = (msg: string) =>
   ({
     ok: false,
     error: msg,
   }) as const
 
-export { Ok, Err }
+export { ok, fail }

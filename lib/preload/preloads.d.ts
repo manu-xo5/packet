@@ -1,4 +1,4 @@
-import { Fetcher } from '../main/main'
+import { Fetcher } from '@/lib/fetch-class'
 
 declare global {
   interface Window {

@@ -1,11 +1,13 @@
-import { Activity, useState } from 'react'
-import { useStore } from '../store/fetcher'
+import { Activity, useMemo, useState } from 'react'
+import { type FetcherStore, FetcherStoreCtx, store, useStore } from '../store/fetcher'
 import { BodyTab } from './body-tab'
 import { HeaderTab } from './header-tab'
 import { RequestHeaderTab } from './header-tab-request'
 import { TabButton, TabGroup } from './ui/tabs'
 import { UrlInput } from './url-input'
 import { RequestBodyTab } from './body-tab-request'
+import { CookieTab } from './cookie-tab'
+import { StoreApi } from 'zustand'
 
 function Dashboard() {
   return (
@@ -25,40 +27,57 @@ function Dashboard() {
   )
 }
 
+type Fetcher = {
+  id: string
+}
+
+type FetcherCtx = [Fetcher, StoreApi<FetcherStore>]
+
 function RequestBox() {
   const [selectedTab, setTab] = useState<'headers' | 'body' | 'cookie'>('headers')
 
+  const ctxValue = useMemo(() => [{ id: window.crypto.randomUUID() }, store] as FetcherCtx, [])
+
   return (
-    <div className="w-full h-full flex flex-col">
-      <div className="py-3 pl-3 flex items-center">
-        <p>Request:</p>
+    <FetcherStoreCtx value={ctxValue}>
+      <div className="w-full h-full flex flex-col">
+        <div className="py-3 pl-3 flex items-center">
+          <p>Request:</p>
 
-        <div className="flex gap-3 px-3">
-          <TabGroup>
-            <TabButton selected={selectedTab === 'headers'} onClick={() => setTab('headers')}>
-              Headers
-            </TabButton>
+          <div className="flex gap-3 px-3">
+            <TabGroup>
+              <TabButton selected={selectedTab === 'headers'} onClick={() => setTab('headers')}>
+                Headers
+              </TabButton>
 
-            <TabButton selected={'body' === selectedTab} onClick={() => setTab('body')}>
-              Body
-            </TabButton>
-            <TabButton selected={'cookie' === selectedTab} onClick={() => setTab('cookie')}>
-              Cookie
-            </TabButton>
-          </TabGroup>
+              <TabButton selected={'cookie' === selectedTab} onClick={() => setTab('cookie')}>
+                Cookie
+              </TabButton>
+
+              <TabButton selected={'body' === selectedTab} onClick={() => setTab('body')}>
+                Body
+              </TabButton>
+            </TabGroup>
+          </div>
         </div>
+
+        <Activity mode={selectedTab === 'headers' ? 'visible' : 'hidden'}>
+          <RequestHeaderTab />
+        </Activity>
+
+        <Activity mode={selectedTab === 'body' ? 'visible' : 'hidden'}>
+          <div className="flex-1 min-h-0">
+            <RequestBodyTab />
+          </div>
+        </Activity>
+
+        <Activity mode={selectedTab === 'cookie' ? 'visible' : 'hidden'}>
+          <div className="flex-1 min-h-0">
+            <CookieTab />
+          </div>
+        </Activity>
       </div>
-
-      <Activity mode={selectedTab === 'headers' ? 'visible' : 'hidden'}>
-        <RequestHeaderTab />
-      </Activity>
-
-      <Activity mode={selectedTab === 'body' ? 'visible' : 'hidden'}>
-        <div className="flex-1 min-h-0">
-          <RequestBodyTab />
-        </div>
-      </Activity>
-    </div>
+    </FetcherStoreCtx>
   )
 }
 

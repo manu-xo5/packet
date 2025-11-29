@@ -1,10 +1,10 @@
-import { Err, Ok } from './result'
+import { fail, ok } from './result'
 
 async function tryCatch<V>(promise: Promise<V>) {
   try {
-    return Ok(await promise)
+    return ok(await promise)
   } catch (err) {
-    return Err(err instanceof Error ? err.message : String(err))
+    return fail(err instanceof Error ? err.message : String(err))
   }
 }
 

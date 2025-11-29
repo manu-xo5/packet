@@ -32,10 +32,6 @@ function RequestBodyTab() {
     return Math.max(0, level)
   }
 
-  const shouldAutoPair = () => {
-
-  }
-
   return (
     <div className="h-full flex rounded-md border-input border overflow-hidden">
       <Textarea

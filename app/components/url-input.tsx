@@ -1,7 +1,7 @@
 import { fetcher } from '@/lib/fetcher'
 import { Loader2Icon, SendHorizontalIcon } from 'lucide-react'
 import { METHODS, TMethod } from '../data/methods'
-import { HeaderObj, store, useStore } from '../store/fetcher'
+import { CookieObj, HeaderObj, store, useStore } from '../store/fetcher'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger } from './ui/select'
@@ -25,9 +25,43 @@ function headerResponseDto(headers: Record<string, string>) {
   }))
 }
 
+function cookieRequestDto(cookies: CookieObj[]): string {
+  void cookies
+  return [
+    {
+      id: window.crypto.randomUUID(),
+      name: 'x-user-id',
+      value: Math.random().toString().substring(2, 10),
+      deleted: false,
+    },
+  ]
+    .filter(({ deleted }) => !deleted)
+    .filter(({ name }) => name.trim().length > 0)
+    .map(({ name, value }) => `${name}=${value}`)
+    .join(';')
+}
+
+function cookieResponseDto(_rawCookie: string): CookieObj[] {
+  throw new Error('not implemented')
+}
+
+void cookieResponseDto
+
 async function action() {
   const { url, method, request } = store.getState()
-  const res = await fetcher(url, { method: method, headers: headerRequestDto(request.headers) })
+
+  const res = await fetcher(url, {
+    method: method,
+    headers: headerRequestDto([
+      ...request.headers,
+      {
+        id: window.crypto.randomUUID(),
+        name: 'Cookie',
+        value: cookieRequestDto(request.cookies),
+        deleted: false,
+      },
+    ]),
+  })
 
   if (!res.ok) {
     console.error(res.error)

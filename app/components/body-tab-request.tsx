@@ -33,7 +33,7 @@ function RequestBodyTab() {
   }
 
   return (
-    <div className="h-full flex rounded-md border-input border overflow-hidden">
+    <div className="h-full flex border-input border overflow-hidden">
       <Textarea
         className="overflow-x-auto h-full border-0 rounded-r-none font-mono"
         value={text}

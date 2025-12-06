@@ -30,11 +30,11 @@ export function HeaderTab({
 }: Props) {
   return (
     <>
-      <div className="overflow-x-auto flex-1 bg-card rounded-md">
+      <div className="overflow-x-auto flex-1 bg-card">
         <div className="grid grid-cols-3 text-sm">
           {headers.map(({ id, name, value, deleted }, i) => (
             <Fragment key={id}>
-              <p className="py-2 border-b pl-3 flex items-center gap-3">
+              <p className="py-2 border-b flex items-center gap-3 px-4">
                 <input
                   type="checkbox"
                   className={cn(!editable && 'invisible')}

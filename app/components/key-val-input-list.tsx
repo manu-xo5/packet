@@ -33,7 +33,7 @@ type Props = {
 
 function KeyValInputList({ items, editable = false, onChangeName, onChangeValue, onDeleteChange }: Props) {
   return (
-    <div className="overflow-x-auto flex-1 bg-card rounded-md h-full">
+    <div className="overflow-x-auto flex-1 bg-card h-full">
       <div className="grid grid-cols-[auto_1fr_1fr_1fr] text-sm">
         {items.length === 0
           ? null

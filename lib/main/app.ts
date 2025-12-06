@@ -11,9 +11,8 @@ export function createAppWindow(): void {
     height: 670,
     show: false,
     icon: appIcon,
-    frame: false,
     titleBarStyle: 'hiddenInset',
-    title: 'Electron React App',
+    title: 'Packet',
     maximizable: true,
     resizable: true,
     webPreferences: {

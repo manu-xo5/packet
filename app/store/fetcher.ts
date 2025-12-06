@@ -53,6 +53,27 @@ const initialState: FetcherStore = {
 
 const store = createStore(immer((): FetcherStore => initialState))
 
+const createFetcherStore = () =>
+  createStore(
+    immer(
+      (): FetcherStore => ({
+        url: 'https://jsonplaceholder.typicode.com/posts',
+        method: 'GET',
+        request: {
+          text: '',
+          headers: [
+            { id: window.crypto.randomUUID(), name: 'content-type', value: 'application/json', deleted: false },
+          ],
+          cookies: [],
+        },
+        response: {
+          text: '',
+          headers: [],
+        },
+      })
+    )
+  )
+
 const useStore = () => useZustandStore(store)
 
 // Context
@@ -74,4 +95,4 @@ function useFetcherStore() {
   return ctxValue
 }
 
-export { FetcherStoreCtx, store, useFetcherStore, useStore, type FetcherCtx, type FetcherStore }
+export { FetcherStoreCtx, store, createFetcherStore, useFetcherStore, useStore, type FetcherCtx, type FetcherStore }

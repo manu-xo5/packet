@@ -1,83 +1,95 @@
-import { Activity, useMemo, useState } from 'react'
-import { type FetcherStore, FetcherStoreCtx, store, useStore } from '../store/fetcher'
+import { Sidebar } from '@/app/components/sidebar'
+import { FilesProvider, useFiles } from '@/app/store/files'
+import { Activity, useState } from 'react'
+import { FetcherStoreCtx, useStore } from '../store/fetcher'
 import { BodyTab } from './body-tab'
+import { RequestBodyTab } from './body-tab-request'
+import { CookieTab } from './cookie-tab'
 import { HeaderTab } from './header-tab'
 import { RequestHeaderTab } from './header-tab-request'
 import { TabButton, TabGroup } from './ui/tabs'
 import { UrlInput } from './url-input'
-import { RequestBodyTab } from './body-tab-request'
-import { CookieTab } from './cookie-tab'
-import { StoreApi } from 'zustand'
 
 function Dashboard() {
   return (
-    <div className="p-12 h-full flex flex-col">
-      <div className="mt-3">
-        <UrlInput />
-      </div>
-
-      <div className="flex-1 flex-col flex min-h-0">
-        <RequestBox />
-      </div>
-
-      <div className="flex-1 flex flex-col min-h-0">
-        <ResponseBox />
-      </div>
-    </div>
+    <FilesProvider>
+      <Inner />
+    </FilesProvider>
   )
 }
 
-type Fetcher = {
-  id: string
-}
+function Inner() {
+  const { fetchers, selected } = useFiles()
+  const selectedFetcher = fetchers[selected]
 
-type FetcherCtx = [Fetcher, StoreApi<FetcherStore>]
+  if (!selectedFetcher) {
+    throw new Error('invariant')
+  }
+
+  return (
+    <FetcherStoreCtx value={[selectedFetcher.details, selectedFetcher.store]}>
+      <div className="grid grid-cols-[auto_1fr] h-full">
+        <Sidebar />
+
+        <div className="pt-12 px-0 h-full flex flex-col">
+          <div className="mt-3">
+            <UrlInput />
+          </div>
+
+          <div className="flex-1 flex-col flex min-h-0">
+            <RequestBox />
+          </div>
+
+          <div className="flex-1 flex flex-col min-h-0">
+            <ResponseBox />
+          </div>
+        </div>
+      </div>
+    </FetcherStoreCtx>
+  )
+}
 
 function RequestBox() {
   const [selectedTab, setTab] = useState<'headers' | 'body' | 'cookie'>('headers')
 
-  const ctxValue = useMemo(() => [{ id: window.crypto.randomUUID() }, store] as FetcherCtx, [])
-
   return (
-    <FetcherStoreCtx value={ctxValue}>
-      <div className="w-full h-full flex flex-col">
-        <div className="py-3 pl-3 flex items-center">
-          <p>Request:</p>
+    <div className="w-full h-full flex flex-col">
+      <div className="py-3 pl-3 flex items-center">
+        <p>Request:</p>
 
-          <div className="flex gap-3 px-3">
-            <TabGroup>
-              <TabButton selected={selectedTab === 'headers'} onClick={() => setTab('headers')}>
-                Headers
-              </TabButton>
+        <div className="flex gap-3 px-3">
+          <TabGroup>
+            <TabButton selected={selectedTab === 'headers'} onClick={() => setTab('headers')}>
+              Headers
+            </TabButton>
 
-              <TabButton selected={'cookie' === selectedTab} onClick={() => setTab('cookie')}>
-                Cookie
-              </TabButton>
+            <TabButton selected={'cookie' === selectedTab} onClick={() => setTab('cookie')}>
+              Cookie
+            </TabButton>
 
-              <TabButton selected={'body' === selectedTab} onClick={() => setTab('body')}>
-                Body
-              </TabButton>
-            </TabGroup>
-          </div>
+            <TabButton selected={'body' === selectedTab} onClick={() => setTab('body')}>
+              Body
+            </TabButton>
+          </TabGroup>
         </div>
-
-        <Activity mode={selectedTab === 'headers' ? 'visible' : 'hidden'}>
-          <RequestHeaderTab />
-        </Activity>
-
-        <Activity mode={selectedTab === 'body' ? 'visible' : 'hidden'}>
-          <div className="flex-1 min-h-0">
-            <RequestBodyTab />
-          </div>
-        </Activity>
-
-        <Activity mode={selectedTab === 'cookie' ? 'visible' : 'hidden'}>
-          <div className="flex-1 min-h-0">
-            <CookieTab />
-          </div>
-        </Activity>
       </div>
-    </FetcherStoreCtx>
+
+      <Activity mode={selectedTab === 'headers' ? 'visible' : 'hidden'}>
+        <RequestHeaderTab />
+      </Activity>
+
+      <Activity mode={selectedTab === 'body' ? 'visible' : 'hidden'}>
+        <div className="flex-1 min-h-0">
+          <RequestBodyTab />
+        </div>
+      </Activity>
+
+      <Activity mode={selectedTab === 'cookie' ? 'visible' : 'hidden'}>
+        <div className="flex-1 min-h-0">
+          <CookieTab />
+        </div>
+      </Activity>
+    </div>
   )
 }
 

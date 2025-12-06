@@ -7,10 +7,10 @@ import { SimpleFileCookieStore } from '../tough-file-store'
 import { createAppWindow } from './app'
 
 app.whenReady().then(() => {
-  electronApp.setAppUserModelId('com.packet')
+  electronApp.setAppUserModelId('com.mohitmatwaya.packet')
   createAppWindow()
 
-  const storage = new SimpleFileCookieStore(path.join(homedir(), 'com.packet.cookie'))
+  const storage = new SimpleFileCookieStore(path.join(homedir(), 'packet-cookie'))
 
   const fetcher = createFetcher({ storage })
 

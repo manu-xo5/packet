@@ -41,7 +41,7 @@ function TabGroup({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       className={cn(
-        'bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-[3px]',
+        'bg-card text-card-foreground inline-flex h-9 w-fit items-end justify-center pt-[3px]',
         className
       )}
       {...props}
@@ -53,8 +53,8 @@ function TabButton({ selected, className, ...props }: React.ComponentProps<'butt
   return (
     <button
       className={cn(
-        'px-2 py-1 text-sm font-medium text-foreground dark:text-muted-foreground rounded-md border border-transparent',
-        selected && 'bg-background dark:text-foreground dark:border-input dark:bg-input/30 shadow-sm',
+        'px-2 py-1 text-sm font-medium text-foreground dark:text-muted-foreground border-b border-transparent',
+        selected && 'dark:text-foreground border-primary shadow-sm',
         className
       )}
       {...props}

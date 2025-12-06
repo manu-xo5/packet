@@ -1,10 +1,12 @@
+import { cn } from '@/lib/utils'
 import { RefObject, useEffect, useRef } from 'react'
 
 type Props = {
   targetRef: RefObject<HTMLDivElement | null>
+  orientation?: 'horizontal' | 'vertical'
 }
 
-export function ResizeBar({ targetRef }: Props) {
+export function ResizeBar({ targetRef, orientation = 'vertical' }: Props) {
   const pointerDownRef = useRef(false)
 
   useEffect(() => {
@@ -13,7 +15,11 @@ export function ResizeBar({ targetRef }: Props) {
         return
       }
 
-      targetRef.current?.style.setProperty('width', e.clientX + "px")
+      if (orientation === 'vertical') {
+        targetRef.current?.style.setProperty('width', e.clientX + 'px')
+      } else if (orientation === 'horizontal') {
+        targetRef.current?.style.setProperty('height', e.clientY + 'px')
+      }
     }
 
     const handlePointerUp = () => {
@@ -28,17 +34,23 @@ export function ResizeBar({ targetRef }: Props) {
       window.removeEventListener('pointermove', handlePointerMove)
       window.removeEventListener('pointerup', handlePointerUp)
     }
-  }, [targetRef])
+  }, [targetRef, orientation])
 
   return (
     <div
-      className="px-0.5 w-0.75 box-content h-full opacity-0 hover:opacity-100 absolute top-0 right-0 translate-x-1/2 transition-opacity cursor-ew-resize"
+      className={cn(
+        'box-content absolute translate-x-1/2 transition-opacity',
+        orientation === 'vertical' && 'px-0.25 w-0.75 h-full top-0 right-0  cursor-ew-resize',
+        orientation === 'horizontal' && 'py-0.25 h-0.75 w-full bottom-0 left-0 cursor-ns-resize'
+      )}
       onPointerDown={() => {
         pointerDownRef.current = true
         document.body.style.setProperty('user-select', 'none')
       }}
+
+      role="aside"
     >
-      <div className="w-full h-full bg-accent" />
+      <div className="w-full h-full" />
     </div>
   )
 }

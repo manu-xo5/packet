@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -17,6 +17,7 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
+  --color-tertiary: var(--tertiary);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
@@ -54,6 +55,7 @@
   --primary-foreground: oklch(0.986 0.031 120.757);
   --secondary: oklch(0.967 0.001 286.375);
   --secondary-foreground: oklch(0.21 0.006 285.885);
+  --tertiary: oklch(0.5728 0.0858 157.93);
   --muted: oklch(0.967 0.001 286.375);
   --muted-foreground: oklch(0.552 0.016 285.938);
   --accent: oklch(0.967 0.001 286.375);
@@ -75,6 +77,8 @@
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.841 0.238 128.85);
+
+  --header-height: 37px;
 }
 
 .dark {
@@ -84,10 +88,11 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.21 0.006 285.885);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.648 0.2 131.684);
+  --primary: oklch(0.4028 0.0858 157.93);
   --primary-foreground: oklch(0.986 0.031 120.757);
   --secondary: oklch(0.274 0.006 286.033);
   --secondary-foreground: oklch(0.985 0 0);
+  --tertiary: oklch(0.5728 0.0858 157.93);
   --muted: oklch(0.274 0.006 286.033);
   --muted-foreground: oklch(0.705 0.015 286.067);
   --accent: oklch(0.274 0.006 286.033);
@@ -118,11 +123,15 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: "Open Sans", ui-sans-serif, system-ui, sans-serif;
+    font-family: 'Open Sans', ui-sans-serif, system-ui, sans-serif;
   }
 
   html {
     @apply overscroll-none;
+  }
+
+  input {
+    @apply outline-none text-sm;
   }
 }
 

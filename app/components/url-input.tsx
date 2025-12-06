@@ -83,14 +83,14 @@ function UrlInput() {
   const [, dispatch, isPending] = useActionState(action, undefined)
 
   return (
-    <form className="h-11 flex items-center bg-secondary dark:bg-input/30 pr-3" action={dispatch}>
+    <form className="h-8 flex items-center bg-secondary pr-1.5" action={dispatch}>
       <Select
         value={method}
         onValueChange={(next) => {
           store.setState({ method: next as TMethod })
         }}
       >
-        <SelectTrigger className="rounded-none border-none w-auto bg-transparent dark:bg-transparent dark:text-primary font-bold">
+        <SelectTrigger className="rounded-none border-none w-auto bg-transparent dark:bg-transparent text-tertiary font-bold">
           {method}
         </SelectTrigger>
 
@@ -103,8 +103,8 @@ function UrlInput() {
         </SelectContent>
       </Select>
 
-      <Input
-        className="pl-0 rounded-none border-none bg-transparent dark:bg-transparent text-xs! font-[monospace]"
+      <input
+        className="w-full pl-0 rounded-none border-none bg-transparent dark:bg-transparent text-xs! font-[monospace]"
         placeholder="http://..."
         name="url"
         value={url}
@@ -114,7 +114,7 @@ function UrlInput() {
         }}
       />
 
-      <Button type="submit" className="border-none text-xs! h-7! gap-1">
+      <Button type="submit" className="border-none text-xs! rounded-sm w-auto h-6! gap-1">
         Send
         {isPending ? <Loader2Icon className="animate-spin" /> : <Svg />}
       </Button>
@@ -130,12 +130,37 @@ function Svg() {
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 26.6699 24.1504"
-      className="size-3"
+      className="size-2.5"
     >
       <g>
         <rect height="24.1504" opacity="0" width="26.6699" x="0" y="0" />
         <path
           d="M1.08398 14.4824C1.08398 14.9219 1.44531 15.2637 1.88477 15.2832L5.76172 15.4297L22.3926 15.4297C25.1172 15.4297 26.3086 14.1406 26.3086 11.4551L26.3086 3.91602C26.3086 1.19141 25.1172 0 22.3926 0L14.9219 0C14.3359 0 13.9551 0.419922 13.9551 0.947266C13.9551 1.46484 14.3359 1.89453 14.9121 1.89453L22.3926 1.89453C23.7695 1.89453 24.4141 2.53906 24.4141 3.91602L24.4141 11.4551C24.4141 12.8906 23.7598 13.5352 22.3926 13.5352L5.76172 13.5352L1.88477 13.6914C1.44531 13.7109 1.08398 14.043 1.08398 14.4824ZM0 14.4824C0 14.7461 0.0976562 14.9902 0.3125 15.1953L7.79297 22.5781C7.97852 22.7637 8.25195 22.8711 8.48633 22.8711C9.05273 22.8711 9.42383 22.4805 9.42383 21.9336C9.42383 21.6602 9.33594 21.4453 9.16992 21.2793L5.3125 17.4902L2.27539 14.8145L2.27539 14.1504L5.3125 11.4746L9.16992 7.68555C9.33594 7.51953 9.42383 7.30469 9.42383 7.03125C9.42383 6.48438 9.05273 6.09375 8.48633 6.09375C8.25195 6.09375 7.97852 6.21094 7.79297 6.38672L0.3125 13.7793C0.0976562 13.9746 0 14.2188 0 14.4824Z"
+          fill="white"
+          fillOpacity="0.85"
+        />
+      </g>
+    </svg>
+  )
+}
+
+function Save() {
+  return (
+    <svg
+      version="1.1"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlnsXlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 29.9512 30.9082"
+    >
+      <g>
+        <rect height="30.9082" opacity="0" width="29.9512" x="0" y="0" />
+        <path
+          d="M24.3457 9.63867L28.9355 15.7812C29.4238 16.4355 29.5898 16.9141 29.5898 17.9395L29.5898 24.8535C29.5898 27.3438 28.3105 28.623 25.7812 28.623L3.79883 28.623C1.2793 28.623 0 27.3535 0 24.8535L0 17.9395C0 16.9141 0.166016 16.4355 0.644531 15.7812L5.24414 9.63867C6.52344 7.91016 7.24609 7.45117 9.3457 7.45117L11.7383 7.45117L11.7383 8.97461L9.19922 8.97461C8.24219 8.97461 7.51953 9.26758 6.93359 10.0684L2.05078 16.6602C1.875 16.9141 1.95312 17.2168 2.31445 17.2168L10.6738 17.2168C11.2891 17.2168 11.5918 17.6758 11.5918 18.1836L11.5918 18.2422C11.5918 19.9023 12.8711 21.5234 14.7949 21.5234C16.7188 21.5234 17.998 19.9023 17.998 18.2422L17.998 18.1836C17.998 17.6758 18.3008 17.2168 18.916 17.2168L27.2656 17.2168C27.627 17.2168 27.7051 16.9141 27.5293 16.6602L22.6562 10.0684C22.0703 9.26758 21.3477 8.97461 20.3906 8.97461L17.8516 8.97461L17.8516 7.45117L20.2441 7.45117C22.3438 7.45117 23.0664 7.91016 24.3457 9.63867Z"
+          fill="white"
+          fillOpacity="0.85"
+        />
+        <path
+          d="M10.5078 10.8984C10.0586 10.8984 9.73633 11.2207 9.73633 11.6602C9.73633 11.8848 9.82422 12.0605 9.99023 12.2266L14.1699 16.2891C14.3848 16.5039 14.5703 16.5723 14.7949 16.5723C15.0098 16.5723 15.2051 16.5039 15.4102 16.2891L19.5898 12.2266C19.7559 12.0605 19.8438 11.8848 19.8438 11.6602C19.8438 11.2207 19.502 10.8984 19.0625 10.8984C18.8574 10.8984 18.6328 10.9863 18.4766 11.1621L16.3574 13.3887L14.7949 15.0293L13.2227 13.3887L11.1035 11.1621C10.9473 10.9863 10.7129 10.8984 10.5078 10.8984ZM14.7949 0C14.3262 0 13.9355 0.380859 13.9355 0.839844L13.9355 12.334L14.0625 15.459C14.082 15.8594 14.3945 16.1914 14.7949 16.1914C15.1953 16.1914 15.5078 15.8594 15.5273 15.459L15.6445 12.334L15.6445 0.839844C15.6445 0.380859 15.2539 0 14.7949 0Z"
           fill="white"
           fillOpacity="0.85"
         />

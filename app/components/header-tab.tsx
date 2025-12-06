@@ -32,6 +32,16 @@ export function HeaderTab({
     <>
       <div className="overflow-x-auto flex-1 bg-card">
         <div className="grid grid-cols-3 text-sm">
+          <Fragment>
+            <p className="opacity-70 py-1 border-b flex items-center gap-3 px-4 bg-secondary">
+              <input type="checkbox" className={cn('invisible')} checked={false} disabled readOnly />
+
+              <span className="flex-1">Key</span>
+            </p>
+
+            <span className="opacity-70 col-span-2 border-b border-l outline-none py-1 px-3 bg-secondary">Value</span>
+          </Fragment>
+
           {headers.map(({ id, name, value, deleted }, i) => (
             <Fragment key={id}>
               <p className="py-2 border-b flex items-center gap-3 px-4">
@@ -55,7 +65,7 @@ export function HeaderTab({
               </p>
 
               <Editable
-                className="col-span-2 border-b border-l outline-none py-2 px-12"
+                className="col-span-2 border-b border-l outline-none py-2 px-3"
                 editable={editable}
                 value={value}
                 onChange={(ev) => onHeaderChangeValue?.(i, ev.currentTarget.value)}

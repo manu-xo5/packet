@@ -83,7 +83,7 @@ function UrlInput() {
   const [, dispatch, isPending] = useActionState(action, undefined)
 
   return (
-    <form className="h-header flex items-center bg-sidebar" action={dispatch}>
+    <form className="h-[calc(5px+var(--header-height))] flex items-center bg-sidebar" action={dispatch}>
       <Select
         value={method}
         onValueChange={(next) => {
@@ -129,12 +129,7 @@ function UrlInput() {
 
 function Svg() {
   return (
-    <svg
-      version="1.1"
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 26.6699 24.1504"
-      className="size-2.5"
-    >
+    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26.6699 24.1504" className="size-2.5">
       <g>
         <rect height="24.1504" opacity="0" width="26.6699" x="0" y="0" />
         <path
@@ -149,12 +144,7 @@ function Svg() {
 
 function Save() {
   return (
-    <svg
-      version="1.1"
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 29.9512 30.9082"
-      className="size-3.5"
-    >
+    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 29.9512 30.9082" className="size-3.5">
       <g>
         <rect height="30.9082" opacity="0" width="29.9512" x="0" y="0" />
         <path

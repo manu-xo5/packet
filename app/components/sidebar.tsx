@@ -30,7 +30,7 @@ function Sidebar() {
         <div className="absolute top-0 left-0 w-full h-full backdrop-blur-[105px] bg-gray-700/20 -z-5" />
 
         <header className="h-header p-3 flex justify-end [-webkit-app-region:drag]">
-          <Button type="button" variant="secondary" size="icon-xs" onClick={() => add()}>
+          <Button type="button" variant="secondary" size="icon-xs" onClick={() => add()} className="bg-gray-400/40">
             <PlusIcon className="size-3/4" />
           </Button>
         </header>
@@ -92,12 +92,13 @@ function FileItem({ fetcher }: { fetcher: { id: string; name?: string } }) {
         />
       ) : (
         <Button
-          className="justify-start w-full font-normal h-6 text-sm rounded-sm px-3"
+          className="justify-start w-full font-normal h-6 text-sm rounded-sm px-3 relative"
           variant={isSelected ? 'default' : 'ghost'}
           onClick={() => setSelected(fetcher.id)}
           onDoubleClick={() => setEditing(true)}
         >
-          <span className="min-w-0 truncate">
+          <span className='flex size-full bg-gray-400/10 absolute top-0 left-0 rounded-sm z-5' />
+          <span className="min-w-0 truncate opacity-100 z-10">
             {method} {fetcher.name}
           </span>
         </Button>

@@ -1,6 +1,6 @@
 import { Sidebar } from '@/app/components/sidebar'
 import { FilesProvider, useFiles } from '@/app/store/files'
-import { Activity, useRef, useState } from 'react'
+import { Activity, useEffect, useRef, useState } from 'react'
 import { FetcherStoreCtx, useStore } from '../store/fetcher'
 import { BodyTab } from './body-tab'
 import { RequestBodyTab } from './body-tab-request'
@@ -11,8 +11,25 @@ import { TabButton, TabGroup } from './ui/tabs'
 import { UrlInput } from './url-input'
 import { ResizeBar } from './resize-bar'
 import { TopTab } from './top-tab'
+import { FocusMainSearch, NewTopTab } from '../events'
 
 function Dashboard() {
+  useEffect(() => {
+    const handleKeyboardShortcut = (e: KeyboardEvent) => {
+      if (e.key === 'k' && e.metaKey) {
+        window.dispatchEvent(FocusMainSearch.new())
+      }
+      
+      if (e.key === 't' && e.metaKey) {
+        window.dispatchEvent(NewTopTab.new())
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyboardShortcut)
+
+    return () => window.removeEventListener('keydown', handleKeyboardShortcut)
+  }, [])
+
   return (
     <FilesProvider>
       <Inner />

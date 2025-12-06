@@ -5,6 +5,7 @@ import { useFiles } from '@/app/store/files'
 import { PlusIcon } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useStore } from 'zustand'
+import { FocusMainSearch } from '../events'
 
 function Sidebar() {
   const { fetchers, add, setSelected } = useFiles()
@@ -30,7 +31,13 @@ function Sidebar() {
         <div className="absolute top-0 left-0 w-full h-full backdrop-blur-[105px] bg-gray-700/20 -z-5" />
 
         <header className="h-header p-3 flex justify-end [-webkit-app-region:drag]">
-          <Button type="button" variant="secondary" size="icon-xs" onClick={() => add()} className="bg-gray-400/40">
+          <Button
+            type="button"
+            variant="secondary"
+            size="icon-xs"
+            onClick={() => add()}
+            className="bg-gray-400/40 [-webkit-app-region:no-drag]"
+          >
             <PlusIcon className="size-3/4" />
           </Button>
         </header>
@@ -39,7 +46,20 @@ function Sidebar() {
           <form className="h-header p-[6.5px] flex items-center">
             <div className="h-full bg-white/10 rounded-sm flex-1 flex items-center gap-1.25 px-2.5">
               <Svg />
-              <input className="w-full" placeholder="Search request" />
+              <input
+                ref={(node) => {
+                  if (!node) return
+                  const handle = () => {
+                    node.focus()
+                  }
+
+                  window.addEventListener(FocusMainSearch.type, handle)
+
+                  return () => window.removeEventListener(FocusMainSearch.type, handle)
+                }}
+                className="w-full"
+                placeholder="Search request"
+              />
             </div>
           </form>
         </div>
@@ -97,7 +117,7 @@ function FileItem({ fetcher }: { fetcher: { id: string; name?: string } }) {
           onClick={() => setSelected(fetcher.id)}
           onDoubleClick={() => setEditing(true)}
         >
-          <span className='flex size-full bg-gray-400/10 absolute top-0 left-0 rounded-sm z-5' />
+          <span className="flex size-full bg-gray-400/10 absolute top-0 left-0 rounded-sm z-5" />
           <span className="min-w-0 truncate opacity-100 z-10">
             {method} {fetcher.name}
           </span>

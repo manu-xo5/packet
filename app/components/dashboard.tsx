@@ -10,6 +10,7 @@ import { RequestHeaderTab } from './header-tab-request'
 import { TabButton, TabGroup } from './ui/tabs'
 import { UrlInput } from './url-input'
 import { ResizeBar } from './resize-bar'
+import { TopTab } from './top-tab'
 
 function Dashboard() {
   return (
@@ -33,7 +34,9 @@ function Inner() {
         <Sidebar />
 
         <div className="px-0 h-full flex flex-col">
-          <header className="h-header bg-card"></header>
+          <header className="h-header [-webkit-app-region:drag]">
+            <TopTab />
+          </header>
 
           <div className="border-t border-black">
             <UrlInput />
@@ -57,9 +60,7 @@ function RequestBox() {
   const ref = useRef<any>(null)
 
   return (
-    <div className="w-full h-full flex flex-col relative bg-card border-t-[0.5px]" ref={ref}>
-      <ResizeBar targetRef={ref} orientation="horizontal" />
-
+    <div className="w-full h-full flex flex-col relative bg-secondary border-t-[0.5px]" ref={ref}>
       <TabGroup className="">
         <TabButton selected={selectedTab === 'headers'} onClick={() => setTab('headers')}>
           Headers
@@ -91,6 +92,8 @@ function RequestBox() {
           <CookieTab />
         </div>
       </Activity>
+
+      <ResizeBar targetRef={ref} orientation="horizontal" />
     </div>
   )
 }
@@ -102,7 +105,7 @@ function ResponseBox() {
   const [selectedTab, setTab] = useState<'headers' | 'body' | 'cookie'>('headers')
 
   return (
-    <div className="w-full h-full flex flex-col bg-card border-t-[0.5px]">
+    <div className="w-full h-full flex flex-col bg-secondary border-t-[0.5px]">
       <TabGroup>
         <TabButton selected={selectedTab === 'headers'} onClick={() => setTab('headers')}>
           Headers

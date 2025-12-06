@@ -1,6 +1,5 @@
 import * as React from 'react'
 import * as TabsPrimitive from '@radix-ui/react-tabs'
-
 import { cn } from '@/lib/utils'
 
 function Tabs({ className, ...props }: React.ComponentProps<typeof TabsPrimitive.Root>) {
@@ -41,7 +40,7 @@ function TabGroup({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       className={cn(
-        'bg-card text-card-foreground inline-flex h-9 w-fit items-end justify-center pt-[3px]',
+        'inline-flex h-7 w-fit items-end justify-center',
         className
       )}
       {...props}
@@ -54,7 +53,7 @@ function TabButton({ selected, className, ...props }: React.ComponentProps<'butt
     <button
       className={cn(
         'px-2 py-1 text-sm font-medium text-foreground dark:text-muted-foreground border-b border-transparent',
-        selected && 'dark:text-foreground border-primary shadow-sm',
+        selected && 'dark:text-foreground border-tertiary shadow-sm',
         className
       )}
       {...props}

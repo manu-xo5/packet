@@ -11,38 +11,48 @@ function Sidebar() {
   const sidebarRef = useRef<HTMLDivElement>(null)
 
   return (
-    <div
-      ref={sidebarRef}
-      className="bg-sidebar text-sidebar-foreground border-r-[0.5px] border-black relative h-full flex flex-col min-h-0"
-      style={{
-        minWidth: 200,
-        width: 300,
-        maxWidth: 400,
-      }}
-    >
-      <div className="h-header p-3 flex justify-end">
-        <Button type="button" size="icon-xs" onClick={() => add()}>
-          <PlusIcon className="size-3/4" />
-        </Button>
+    <>
+      <div
+        ref={sidebarRef}
+        className="bg- sidebar text-sidebar-foreground border-r-[0.5px] border-black relative h-full flex flex-col min-h-0"
+        style={{
+          minWidth: 200,
+          width: 300,
+          maxWidth: 400,
+        }}
+      >
+        <div
+          style={{
+            backgroundImage: 'linear-gradient(150deg,rgba(24, 24, 27, 1) 10%, rgba(17, 86, 54, .3) 100%)',
+          }}
+          className="absolute top-0 left-0 w-full h-full -z-10"
+        />
+        <div className="absolute top-0 left-0 w-full h-full backdrop-blur-[105px] bg-gray-700/20 -z-5" />
+
+        <header className="h-header p-3 flex justify-end [-webkit-app-region:drag]">
+          <Button type="button" variant="secondary" size="icon-xs" onClick={() => add()}>
+            <PlusIcon className="size-3/4" />
+          </Button>
+        </header>
+
+        <div className="border-t border-black/0">
+          <form className="h-header p-[6.5px] flex items-center">
+            <div className="h-full bg-white/10 rounded-sm flex-1 flex items-center gap-1.25 px-2.5">
+              <Svg />
+              <input className="w-full" placeholder="Search request" />
+            </div>
+          </form>
+        </div>
+
+        <ul className="flex flex-col p-1.5 pb-3 gap-1 flex-1 overflow-auto border-t-[0.5px] border-black/0">
+          {Object.values(fetchers).map(({ details: fetcher }) => {
+            return <FileItem key={fetcher.id} {...{ fetcher, setSelected }} />
+          })}
+        </ul>
+
+        <ResizeBar targetRef={sidebarRef} />
       </div>
-
-      <div className="border-t border-card">
-        <form className="h-8 p-1 flex items-center">
-          <div className="h-full bg-secondary rounded-sm flex-1 flex items-center gap-1.25 px-2.5">
-            <Svg />
-            <input className="w-full" placeholder="Search request" />
-          </div>
-        </form>
-      </div>
-
-      <ul className="flex flex-col p-1.5 pb-3 gap-1 flex-1 overflow-auto border-t-[0.5px] border-card">
-        {Object.values(fetchers).map(({ details: fetcher }) => {
-          return <FileItem key={fetcher.id} {...{ fetcher, setSelected }} />
-        })}
-      </ul>
-
-      <ResizeBar targetRef={sidebarRef} />
-    </div>
+    </>
   )
 }
 

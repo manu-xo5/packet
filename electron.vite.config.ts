@@ -49,6 +49,13 @@ export default defineConfig({
     resolve: {
       alias: aliases,
     },
-    plugins: [tailwindcss(), react()],
+    plugins: [
+      tailwindcss(),
+      react({
+        babel: {
+          plugins: [['module:@preact/signals-react-transform']],
+        },
+      }),
+    ],
   },
 })

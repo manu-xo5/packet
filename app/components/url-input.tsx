@@ -1,12 +1,13 @@
 import { fetcher } from '@/lib/fetcher'
-import { Loader2Icon, SendHorizontalIcon } from 'lucide-react'
+import { Loader2Icon, SaveIcon } from 'lucide-react'
 import { METHODS, TMethod } from '../data/methods'
 import { CookieObj, HeaderObj, store, useFetcherStore } from '../store/fetcher'
 import { Button } from './ui/button'
-import { Input } from './ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger } from './ui/select'
-import { useActionState } from 'react'
+import { useActionState, useEffect, useLayoutEffect } from 'react'
 import { useStore } from 'zustand'
+import { IconButton } from './ui/icon-button'
+import { NativeSelect, NativeSelectOption } from './ui/native-select'
 
 function headerRequestDto(headers: HeaderObj) {
   const entries = headers
@@ -83,47 +84,49 @@ function UrlInput() {
   const [, dispatch, isPending] = useActionState(action, undefined)
 
   return (
-    <form className="h-[calc(5px+var(--header-height))] flex items-center bg-sidebar" action={dispatch}>
-      <Select
-        value={method}
-        onValueChange={(next) => {
-          store.setState({ method: next as TMethod })
-        }}
-      >
-        <SelectTrigger className="rounded-none border-none w-auto bg-transparent dark:bg-transparent text-tertiary font-bold">
-          {method}
-        </SelectTrigger>
-
-        <SelectContent>
+    <>
+      <form className="pr-1 h-[calc(5px+var(--header-height))] flex items-center bg-sidebar" action={dispatch}>
+        <NativeSelect
+          className="bg-transparent dark:bg-transparent text-tertiary hover:text-primary font-bold"
+          size="fit"
+          accessory={<></>}
+          value={method}
+          onChange={(ev) => {
+            const next = ev.currentTarget.value
+            store.setState({ method: next as TMethod })
+          }}
+        >
           {METHODS.map((methodName) => (
-            <SelectItem key={methodName} value={methodName}>
+            <NativeSelectOption key={methodName} value={methodName}>
               {methodName}
-            </SelectItem>
+            </NativeSelectOption>
           ))}
-        </SelectContent>
-      </Select>
+        </NativeSelect>
 
-      <input
-        className="w-full pl-0 rounded-none border-none bg-transparent dark:bg-transparent text-xs! font-[monospace]"
-        placeholder="http://..."
-        name="url"
-        value={url}
-        onChange={(e) => {
-          const value = e.currentTarget.value
-          store.setState({ url: value })
-        }}
-      />
+        <input
+          className="w-full pl-0 rounded-none border-none bg-transparent dark:bg-transparent text-xs! font-[monospace]"
+          placeholder="http://..."
+          name="url"
+          value={url}
+          onChange={(e) => {
+            const value = e.currentTarget.value
+            store.setState({ url: value })
+          }}
+        />
 
-      <Button type="submit" className="border-none text-xs! rounded-sm w-auto h-6! gap-1.5">
-        Send
-        {isPending ? <Loader2Icon className="animate-spin" /> : <Svg />}
-      </Button>
+        <Button type="submit" className="rounded-sm w-auto gap-1.5">
+          Send
+          {isPending ? <Loader2Icon className="animate-spin" /> : <Svg />}
+        </Button>
 
-      <Button type="button" className="w-8!" variant="ghost" size="icon-sm">
-        <Save />
-      </Button>
-      {/* <Input placeholder="http://..." name="url" defaultValue="http://192.168.0.3:6002/auth/me" /> */}
-    </form>
+        <IconButton icon={Save} />
+        {
+          //<Button type="button" className="w-8!" variant="ghost" size="icon">
+        }
+
+        {/* <Input placeholder="http://..." name="url" defaultValue="http://192.168.0.3:6002/auth/me" /> */}
+      </form>
+    </>
   )
 }
 

@@ -3,13 +3,24 @@ import { Button } from '@/app/components/ui/button'
 import { Input } from '@/app/components/ui/input'
 import { useFiles } from '@/app/store/files'
 import { PlusIcon } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useStore } from 'zustand'
 import { FocusMainSearch } from '../events'
+import { computed, signal, useComputed, useSignal, useSignalEffect } from '@preact/signals-react'
 
 function Sidebar() {
   const { fetchers, add, setSelected } = useFiles()
   const sidebarRef = useRef<HTMLDivElement>(null)
+  const searchText$ = useSignal('')
+
+  const fetchers$ = useSignal<typeof fetchers>(fetchers)
+  useEffect(() => {
+    fetchers$.value = fetchers
+  }, [fetchers, fetchers$])
+
+  const filteredFetchers$ = useComputed(() => {
+    return Object.values(fetchers$.value).filter((f) => f.details.name?.includes(searchText$.value))
+  })
 
   return (
     <>
@@ -58,6 +69,16 @@ function Sidebar() {
                   return () => window.removeEventListener(FocusMainSearch.type, handle)
                 }}
                 className="w-full"
+                value={searchText$.value}
+                onInput={(ev) => {
+                  const value = ev.currentTarget.value
+                  searchText$.value = value
+                }}
+                onKeyDown={(ev) => {
+                  if (ev.key === 'Enter') {
+                    ev.preventDefault()
+                  }
+                }}
                 placeholder="Search request"
               />
             </div>
@@ -65,7 +86,7 @@ function Sidebar() {
         </div>
 
         <ul className="flex flex-col p-1.5 pb-3 gap-1 flex-1 overflow-auto border-t-[0.5px] border-black/0">
-          {Object.values(fetchers).map(({ details: fetcher }) => {
+          {filteredFetchers$.value.map(({ details: fetcher }) => {
             return <FileItem key={fetcher.id} {...{ fetcher, setSelected }} />
           })}
         </ul>
@@ -117,8 +138,7 @@ function FileItem({ fetcher }: { fetcher: { id: string; name?: string } }) {
           onClick={() => setSelected(fetcher.id)}
           onDoubleClick={() => setEditing(true)}
         >
-          <span className="flex size-full bg-gray-400/10 absolute top-0 left-0 rounded-sm z-5" />
-          <span className="min-w-0 truncate opacity-100 z-10">
+          <span className="min-w-0 truncate z-10">
             {method} {fetcher.name}
           </span>
         </Button>

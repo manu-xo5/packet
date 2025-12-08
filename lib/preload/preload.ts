@@ -2,6 +2,8 @@ import { contextBridge, ipcRenderer } from 'electron'
 
 contextBridge.exposeInMainWorld('fetcher', (...args) => ipcRenderer.invoke('fetcher', ...args))
 
+contextBridge.exposeInMainWorld('platform', process.platform)
+
 contextBridge.exposeInMainWorld('contextMenu', {
   onClickedItem: (handler) => {
     const wrappedHandler = (_, ...args) => handler(...args)

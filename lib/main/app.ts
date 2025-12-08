@@ -23,7 +23,7 @@ export function createAppWindow() {
       preload: join(__dirname, '../preload/preload.js'),
       sandbox: false,
     },
-    vibrancy: 'sidebar',
+    vibrancy: 'under-window',
   })
 
   mainWindow.on('ready-to-show', () => {

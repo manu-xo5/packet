@@ -35,13 +35,18 @@ function Sidebar() {
           maxWidth: 400,
         }}
       >
-        <div
-          style={{
-            backgroundImage: 'linear-gradient(150deg,rgba(24, 24, 27, 1) 10%, rgba(17, 86, 54, .3) 100%)',
-          }}
-          className="absolute top-0 left-0 w-full h-full -z-10"
-        />
-        <div className="absolute top-0 left-0 w-full h-full backdrop-blur-[105px] bg-gray-700/20 -z-5" />
+        {window.platform !== 'darwin' && (
+          <>
+            <div
+              style={{
+                backgroundImage: 'linear-gradient(150deg,rgba(24, 24, 27, 1) 10%, rgba(17, 86, 54, .3) 100%)',
+              }}
+              className="absolute top-0 left-0 w-full h-full -z-10"
+            />
+
+            <div className="absolute top-0 left-0 w-full h-full backdrop-blur-[105px] bg-gray-700/20 -z-5" />
+          </>
+        )}
 
         <header className="h-header p-3 flex justify-end [-webkit-app-region:drag]">
           <Button

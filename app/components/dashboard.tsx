@@ -50,7 +50,7 @@ function Inner() {
       <div className="grid grid-cols-[auto_1fr] h-full">
         <Sidebar />
 
-        <div className="px-0 h-full flex flex-col">
+        <div className="px-0 h-full flex flex-col bg-background text-foreground">
           <header className="h-header [-webkit-app-region:drag]">
             <TopTab />
           </header>

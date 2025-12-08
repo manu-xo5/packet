@@ -122,7 +122,6 @@
   }
 
   body {
-    @apply bg-background text-foreground;
     font-family: 'Open Sans', ui-sans-serif, system-ui, sans-serif;
   }
 

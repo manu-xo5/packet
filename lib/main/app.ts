@@ -23,6 +23,7 @@ export function createAppWindow() {
       preload: join(__dirname, '../preload/preload.js'),
       sandbox: false,
     },
+    vibrancy: 'sidebar',
   })
 
   mainWindow.on('ready-to-show', () => {
@@ -40,5 +41,5 @@ export function createAppWindow() {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
 
-  return mainWindow;
+  return mainWindow
 }

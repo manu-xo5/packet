@@ -100,18 +100,13 @@ function Sidebar() {
       </div>
 
       <MenuContext.Root htmlFor="sidebar">
-        <MenuContext.Item label="Foo bar" icon="trash" onClick={() => console.log('Foo Bar')} />
+        <MenuContext.Item label="New Request" onClick={() => console.log('Foo Bar')} />
+        <MenuContext.Item label="New Folder" icon="trash" onClick={() => console.log('Foo Bar')} />
 
-        <MenuContext.Item label="Hello" icon="trash" onClick={() => console.log('Foo Bar')}>
-          <MenuContext.Item label="World" />
-          <MenuContext.Item label="Ji" />
-          <MenuContext.Item label="Amigo" />
-          <MenuContext.Item label="Hello" icon="trash" onClick={() => console.log('Foo Bar')}>
-            <MenuContext.Item label="World" />
-            <MenuContext.Item label="Ji" />
-            <MenuContext.Item label="Amigo" />
-          </MenuContext.Item>
-        </MenuContext.Item>
+        <MenuContext.Item label="Detele" />
+        <MenuContext.Item label="Rename" />
+        <MenuContext.Item label="Duplicate" />
+        <MenuContext.Item label="Copy as cUrl" />
       </MenuContext.Root>
     </>
   )

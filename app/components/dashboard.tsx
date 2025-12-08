@@ -41,6 +41,7 @@ function Dashboard() {
 function Inner() {
   const { fetchers, selected } = useFiles()
   const selectedFetcher = fetchers[selected]
+  const ref = useRef<any>(null)
 
   if (!selectedFetcher) {
     throw new Error('invariant')
@@ -60,8 +61,9 @@ function Inner() {
             <UrlInput />
           </div>
 
-          <div className="flex-1 flex-col flex min-h-0">
+          <div ref={ref} style={{ height: 400 }} className="flex-none flex-col flex relative">
             <RequestBox />
+            <ResizeBar targetRef={ref} orientation="horizontal" />
           </div>
 
           <div className="flex-1 flex flex-col min-h-0">
@@ -75,10 +77,9 @@ function Inner() {
 
 function RequestBox() {
   const [selectedTab, setTab] = useState<'headers' | 'body' | 'cookie'>('headers')
-  const ref = useRef<any>(null)
 
   return (
-    <div className="w-full h-full flex flex-col relative bg-secondary border-t-[0.5px]" ref={ref}>
+    <div className="w-full h-full flex flex-col bg-secondary border-t-[0.5px]">
       <TabGroup className="">
         <TabButton selected={selectedTab === 'headers'} onClick={() => setTab('headers')}>
           Headers
@@ -110,15 +111,15 @@ function RequestBox() {
           <CookieTab />
         </div>
       </Activity>
-
-      <ResizeBar targetRef={ref} orientation="horizontal" />
     </div>
   )
 }
 
 function ResponseBox() {
   const [, store] = useFetcherStore()
-  const { response: { headers, text } } = useStore(store)
+  const {
+    response: { headers, text },
+  } = useStore(store)
 
   const [selectedTab, setTab] = useState<'headers' | 'body' | 'cookie'>('headers')
 

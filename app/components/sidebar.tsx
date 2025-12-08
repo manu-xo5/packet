@@ -100,8 +100,18 @@ function Sidebar() {
       </div>
 
       <MenuContext.Root htmlFor="sidebar">
-        <MenuContext.Item label="Hello Item" onClick={() => console.log('Hello')} />
-        <MenuContext.Item label="Foo bar" onClick={() => console.log('Foo Bar')} />
+        <MenuContext.Item label="Foo bar" icon="trash" onClick={() => console.log('Foo Bar')} />
+
+        <MenuContext.Item label="Hello" icon="trash" onClick={() => console.log('Foo Bar')}>
+          <MenuContext.Item label="World" />
+          <MenuContext.Item label="Ji" />
+          <MenuContext.Item label="Amigo" />
+          <MenuContext.Item label="Hello" icon="trash" onClick={() => console.log('Foo Bar')}>
+            <MenuContext.Item label="World" />
+            <MenuContext.Item label="Ji" />
+            <MenuContext.Item label="Amigo" />
+          </MenuContext.Item>
+        </MenuContext.Item>
       </MenuContext.Root>
     </>
   )

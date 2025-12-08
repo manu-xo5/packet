@@ -1,7 +1,7 @@
 import { useAsyncEffect } from '@/app/hooks/useAsyncEffect'
 import { useStableCallback } from '@/app/hooks/useStableCallback'
 import { useSignal, useSignalEffect } from '@preact/signals-react'
-import { createContext, use, useEffect } from 'react'
+import { Children, cloneElement, createContext, isValidElement, use, useEffect } from 'react'
 
 type TMenuContextCtx = {
   id: string
@@ -21,47 +21,24 @@ const useMenuContextCtx = () => {
 function MenuContextRoot({ htmlFor, children }) {
   const electronMenu = useSignal<TMenuContextCtx | null>(null)
 
-  useEffect(() => {
-    let isMounted = true
-    let menuId: string | undefined
-
-    const cleanup = () => {
-      if (!menuId) return
-      window.contextMenu.remove({ menuId: menuId })
-    }
-
-    ;(async () => {
+  useAsyncEffect(() => {
+    return (async () => {
       const menuId = await window.contextMenu.create({})
 
-      electronMenu.value = {
-        id: menuId,
-      }
+      electronMenu.value = { id: menuId }
 
-      if (!isMounted) {
-        cleanup()
+      const handleRightClick = () => {
+        window.contextMenu.show(menuId)
+      }
+      const elt = document.getElementById(htmlFor)
+      elt?.addEventListener('contextmenu', handleRightClick)
+
+      return () => {
+        elt?.removeEventListener('contextmenu', handleRightClick)
+        window.contextMenu.remove({ menuId: menuId })
       }
     })()
-
-    return () => {
-      isMounted = false
-    }
-  }, [electronMenu])
-
-  useSignalEffect(() => {
-    const handleRightClick = () => {
-      const menuId = electronMenu.value?.id
-
-      if (!menuId) return
-
-      window.contextMenu.show(menuId)
-    }
-
-    const elt = document.getElementById(htmlFor)
-    if (!elt) return
-
-    elt.addEventListener('contextmenu', handleRightClick)
-    return () => elt.removeEventListener('contextmenu', handleRightClick)
-  })
+  }, [electronMenu, htmlFor])
 
   if (!electronMenu.value) {
     return null
@@ -70,8 +47,19 @@ function MenuContextRoot({ htmlFor, children }) {
   return <MenuContextCtx.Provider value={electronMenu.value}>{children}</MenuContextCtx.Provider>
 }
 
-function MenuContextItem({ label, onClick }: { label: string; onClick?: () => void }) {
+function MenuContextItem({
+  label,
+  icon,
+  onClick,
+  children,
+}: {
+  label: string
+  icon?: string
+  onClick?: () => void
+  children?: React.ReactNode
+}) {
   const menuCtx = useMenuContextCtx()
+  const subMenuId$ = useSignal<string | undefined>(undefined)
 
   const onClickRef = useStableCallback(onClick)
 
@@ -79,10 +67,14 @@ function MenuContextItem({ label, onClick }: { label: string; onClick?: () => vo
     return (async () => {
       const menuId = menuCtx.id
 
-      const id = await window.contextMenu.appendItem({
+      const { id, subMenuId } = await window.contextMenu.appendItem({
         menuId: menuCtx.id,
+        submenu: children != null,
         label: label,
+        icon: icon,
       })
+
+      subMenuId$.value = subMenuId
 
       const unsub = window.contextMenu.onClickedItem((ev) => {
         if (ev.itemId !== id) return
@@ -97,11 +89,21 @@ function MenuContextItem({ label, onClick }: { label: string; onClick?: () => vo
           menuId: menuId,
           itemId: id,
         })
+
+        if (subMenuId) {
+          window.contextMenu.remove({
+            menuId: subMenuId,
+          })
+        }
       }
     })()
-  }, [label, menuCtx.id, onClickRef])
+  }, [icon, subMenuId$, label, menuCtx.id, onClickRef, children])
 
-  return null
+  if (!subMenuId$.value) {
+    return null
+  }
+
+  return <MenuContextCtx.Provider value={{ id: subMenuId$.value }}>{children}</MenuContextCtx.Provider>
 }
 
 const MenuContext = {

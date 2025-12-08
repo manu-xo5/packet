@@ -1,4 +1,4 @@
-import { BrowserWindow, dialog, ipcMain, MenuItem } from 'electron'
+import { BrowserWindow, dialog, ipcMain, Menu, MenuItem, nativeImage } from 'electron'
 import { Menu as ElectronMenu } from 'electron/main'
 
 type MenuInit = {
@@ -78,6 +78,20 @@ function handle(name: string, handler: (e: Electron.IpcMainInvokeEvent, ...args:
   })
 }
 
+type Simp<T> = {
+  [Key in keyof T]: T[Key]
+} & {}
+
+export type AppendItemArgs = [
+  Electron.IpcMainInvokeEvent,
+  Simp<
+    { menuId: string; icon?: string; submenu: boolean } & Pick<
+      Electron.MenuItemConstructorOptions,
+      'label' | 'sublabel' | 'type' | 'enabled' | 'checked' | 'role'
+    >
+  >,
+]
+
 function registerContextMenuIpc(win: BrowserWindow) {
   handle('contextMenu::create', (_e, menuInit: MenuInit) => {
     return createMenu(menuInit)
@@ -92,27 +106,41 @@ function registerContextMenuIpc(win: BrowserWindow) {
   })
 
   handle('contextMenu::show', (_e, menuId: string) => {
-    console.log('showing menu ' + menuId + '\n\n')
     const menu = getMenuById(menuId)
 
     menu.contextMenu.popup()
   })
 
-  ipcMain.handle('contextMenu::appendItem', (_e, { menuId, label }: { menuId: string; label: string }) => {
+  ipcMain.handle('contextMenu::appendItem', (...[_, { menuId, icon, submenu, ...menuItemOptions }]: AppendItemArgs) => {
     const menu = getMenuById(menuId)
     const id = crypto.randomUUID()
+    const subMenuId = crypto.randomUUID()
+    const submenuV = submenu
+      ? (() => {
+          createMenu({ id: subMenuId })
+          return getMenuById(subMenuId).contextMenu
+        })()
+      : undefined
+
+    console.log(submenu, submenuV)
+
     const menuItem = new MenuItem({
       id: id,
-      label: label,
       click: () => {
         win.webContents.send('contextMenu::clickedItem', {
           itemId: id,
         })
       },
+      icon: icon && nativeImage.createFromNamedImage(icon),
+      submenu: submenuV,
+      ...menuItemOptions,
     })
 
     menu.append(menuItem)
-    return id
+    return {
+      id,
+      subMenuId: submenu && subMenuId,
+    }
   })
 
   ipcMain.handle('contextMenu::removeItem', (_e, { menuId, itemId }: { menuId: string; itemId: string }) => {

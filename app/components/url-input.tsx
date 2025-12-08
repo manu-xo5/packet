@@ -1,11 +1,10 @@
 import { fetcher } from '@/lib/fetcher'
-import { Loader2Icon, SaveIcon } from 'lucide-react'
-import { METHODS, TMethod } from '../data/methods'
-import { CookieObj, HeaderObj, store, useFetcherStore } from '../store/fetcher'
-import { Button } from './ui/button'
-import { Select, SelectContent, SelectItem, SelectTrigger } from './ui/select'
-import { useActionState, useEffect, useLayoutEffect } from 'react'
+import { Loader2Icon } from 'lucide-react'
+import { useActionState } from 'react'
 import { useStore } from 'zustand'
+import { METHODS, TMethod } from '../data/methods'
+import { CookieObj, HeaderObj, useFetcherStore } from '../store/fetcher'
+import { Button } from './ui/button'
 import { IconButton } from './ui/icon-button'
 import { NativeSelect, NativeSelectOption } from './ui/native-select'
 
@@ -49,39 +48,41 @@ function cookieResponseDto(_rawCookie: string): CookieObj[] {
 
 void cookieResponseDto
 
-async function action() {
-  const { url, method, request } = store.getState()
-
-  const res = await fetcher(url, {
-    method: method,
-    headers: headerRequestDto([
-      ...request.headers,
-      {
-        id: window.crypto.randomUUID(),
-        name: 'Cookie',
-        value: cookieRequestDto(request.cookies),
-        deleted: false,
-      },
-    ]),
-  })
-
-  if (!res.ok) {
-    console.error(res.error)
-    return
-  }
-
-  store.setState({
-    response: {
-      headers: headerResponseDto(res.value.headers),
-      text: res.value.text,
-    },
-  })
-}
-
 function UrlInput() {
   const [, store] = useFetcherStore()
   const { url, method } = useStore(store)
-  const [, dispatch, isPending] = useActionState(action, undefined)
+  const [, dispatch, isPending] = useActionState(
+    async function action() {
+      const { url, method, request } = store.getState()
+
+      const res = await fetcher(url, {
+        method: method,
+        headers: headerRequestDto([
+          ...request.headers,
+          {
+            id: window.crypto.randomUUID(),
+            name: 'Cookie',
+            value: cookieRequestDto(request.cookies),
+            deleted: false,
+          },
+        ]),
+      })
+
+      if (!res.ok) {
+        console.error(res.error)
+        return
+      }
+
+      store.setState({
+        response: {
+          headers: headerResponseDto(res.value.headers),
+          text: res.value.text,
+        },
+      })
+    },
+
+    undefined
+  )
 
   return (
     <>

@@ -1,7 +1,8 @@
 import { createContext, use } from 'react'
-import { createStore, useStore as useZustandStore } from 'zustand'
+import { createStore } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
 import { TMethod } from '../data/methods'
+import { persist } from 'zustand/middleware'
 
 export type HeaderObj = Array<{
   id: string
@@ -51,30 +52,41 @@ const initialState: FetcherStore = {
   },
 }
 
-const store = createStore(immer((): FetcherStore => initialState))
-
 const createFetcherStore = () =>
   createStore(
-    immer(
-      (): FetcherStore => ({
-        url: 'https://jsonplaceholder.typicode.com/posts',
-        method: 'GET',
-        request: {
-          text: '',
-          headers: [
-            { id: window.crypto.randomUUID(), name: 'content-type', value: 'application/json', deleted: false },
-          ],
-          cookies: [],
+    persist(
+      immer(
+        (): FetcherStore => ({
+          url: 'https://jsonplaceholder.typicode.com/posts',
+          method: 'GET',
+          request: {
+            text: '',
+            headers: [
+              { id: window.crypto.randomUUID(), name: 'content-type', value: 'application/json', deleted: false },
+            ],
+            cookies: [],
+          },
+          response: {
+            text: '',
+            headers: [],
+          },
+        })
+      ),
+      {
+        name: 'packet-store',
+        storage: {
+          getItem: () => null,
+          setItem: (name, value) => {
+            console.log('save me', {
+              name,
+              value,
+            })
+          },
+          removeItem: () => {},
         },
-        response: {
-          text: '',
-          headers: [],
-        },
-      })
+      }
     )
   )
-
-const useStore = () => useZustandStore(store)
 
 // Context
 
@@ -82,7 +94,8 @@ type Fetcher = {
   id: string
 }
 
-type FetcherCtx = [Fetcher, typeof store]
+type FetcherStoreApi = ReturnType<typeof createFetcherStore>
+type FetcherCtx = [Fetcher, FetcherStoreApi]
 
 const FetcherStoreCtx = createContext<FetcherCtx | undefined>(undefined)
 
@@ -95,4 +108,11 @@ function useFetcherStore() {
   return ctxValue
 }
 
-export { FetcherStoreCtx, store, createFetcherStore, useFetcherStore, useStore, type FetcherCtx, type FetcherStore }
+export {
+  FetcherStoreCtx,
+  createFetcherStore,
+  useFetcherStore,
+  type FetcherCtx,
+  type FetcherStore,
+  type FetcherStoreApi,
+}

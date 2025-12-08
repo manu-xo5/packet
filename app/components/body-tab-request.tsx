@@ -1,8 +1,10 @@
-import { store, useStore } from '../store/fetcher'
+import { useStore } from 'zustand'
 import { Textarea } from './ui/textarea'
+import { useFetcherStore } from '../store/fetcher'
 
 function RequestBodyTab() {
-  const text = useStore().request.text
+  const [, store] = useFetcherStore()
+  const text = useStore(store, (s) => s.request.text)
   const error = (() => {
     try {
       if (!text.trim()) return ''

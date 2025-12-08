@@ -1,13 +1,13 @@
 import { ResizeBar } from '@/app/components/resize-bar'
 import { Button } from '@/app/components/ui/button'
 import { Input } from '@/app/components/ui/input'
+import { MenuContext } from '@/app/features/context-menu'
 import { useFiles } from '@/app/store/files'
+import { useComputed, useSignal } from '@preact/signals-react'
 import { PlusIcon } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useStore } from 'zustand'
 import { FocusMainSearch } from '../events'
-import { computed, signal, useComputed, useSignal, useSignalEffect } from '@preact/signals-react'
-import { MenuContext } from '@/app/features/context-menu'
 
 function Sidebar() {
   const { fetchers, add, setSelected } = useFiles()

@@ -42,7 +42,6 @@ function MenuContextRoot({ htmlFor, children }) {
 
 function MenuContextItem({
   label,
-  icon,
   onClick,
   children,
 }: {

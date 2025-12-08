@@ -1,17 +1,18 @@
 import { Sidebar } from '@/app/components/sidebar'
 import { FilesProvider, useFiles } from '@/app/store/files'
 import { Activity, useEffect, useRef, useState } from 'react'
-import { FetcherStoreCtx, useStore } from '../store/fetcher'
+import { FocusMainSearch, NewTopTab } from '../events'
+import { FetcherStoreCtx, useFetcherStore } from '../store/fetcher'
 import { BodyTab } from './body-tab'
 import { RequestBodyTab } from './body-tab-request'
 import { CookieTab } from './cookie-tab'
 import { HeaderTab } from './header-tab'
 import { RequestHeaderTab } from './header-tab-request'
-import { TabButton, TabGroup } from './ui/tabs'
-import { UrlInput } from './url-input'
 import { ResizeBar } from './resize-bar'
 import { TopTab } from './top-tab'
-import { FocusMainSearch, NewTopTab } from '../events'
+import { TabButton, TabGroup } from './ui/tabs'
+import { UrlInput } from './url-input'
+import { useStore } from 'zustand'
 
 function Dashboard() {
   useEffect(() => {
@@ -116,9 +117,9 @@ function RequestBox() {
 }
 
 function ResponseBox() {
-  const {
-    response: { headers, text },
-  } = useStore()
+  const [, store] = useFetcherStore()
+  const { response: { headers, text } } = useStore(store)
+
   const [selectedTab, setTab] = useState<'headers' | 'body' | 'cookie'>('headers')
 
   return (

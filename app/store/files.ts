@@ -1,8 +1,7 @@
-import { createFetcherStore, FetcherStore, store } from '@/app/store/fetcher'
+import { createFetcherStore, FetcherStoreApi } from '@/app/store/fetcher'
 import createContextHook from '@/lib/create-context-hook'
-import { useState } from 'react'
-import { StoreApi } from 'zustand'
 import { produce } from 'immer'
+import { useState } from 'react'
 
 type Fetcher = {
   id: string
@@ -19,18 +18,18 @@ const [FilesProvider, useFiles] = createContextHook(() => {
       string,
       {
         details: Fetcher
-        store: StoreApi<FetcherStore>
+        store: FetcherStoreApi
       }
     >
-  >({
+  >(() => ({
     [initial]: {
-      store,
+      store: createFetcherStore(),
       details: {
         id: initial,
         name: 'Untitled Request',
       },
     },
-  })
+  }))
 
   const add = () => {
     const id = window.crypto.randomUUID()

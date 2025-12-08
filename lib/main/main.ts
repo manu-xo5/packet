@@ -9,7 +9,7 @@ import { registerContextMenuIpc } from './context-menu'
 
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.mohitmatwaya.packet')
-  createAppWindow()
+  const mainWindow = createAppWindow()
 
   const storage = new SimpleFileCookieStore(path.join(homedir(), 'packet-cookie'))
 
@@ -20,7 +20,7 @@ app.whenReady().then(() => {
     return fetcher(input, init)
   })
 
-  registerContextMenuIpc()
+  registerContextMenuIpc(mainWindow)
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)

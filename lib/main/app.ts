@@ -3,7 +3,7 @@ import { join } from 'path'
 import appIcon from '@/resources/build/icon.png?asset'
 import { registerResourcesProtocol } from './protocols'
 
-export function createAppWindow(): void {
+export function createAppWindow() {
   registerResourcesProtocol()
 
   const mainWindow = new BrowserWindow({
@@ -39,4 +39,6 @@ export function createAppWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+
+  return mainWindow;
 }

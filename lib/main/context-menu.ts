@@ -1,4 +1,4 @@
-import { BrowserWindow, dialog, ipcMain } from 'electron'
+import { BrowserWindow, dialog, ipcMain, MenuItem } from 'electron'
 import { Menu as ElectronMenu } from 'electron/main'
 
 type MenuInit = {
@@ -8,22 +8,38 @@ type MenuInit = {
 type Menu = {
   id: string
   contextMenu: Electron.Menu
+  items: MenuItem[]
+  append: (menuItem: Electron.MenuItem) => void
+  remove: (itemId: string) => boolean
 }
 
 const context = new Map<string, Menu>()
 
 function createMenu(init: MenuInit) {
-  const contextMenu = ElectronMenu.buildFromTemplate([
-    { role: 'copy' },
-    { role: 'cut' },
-    { role: 'paste' },
-    { role: 'quit' },
-    { role: 'fileMenu' },
-  ])
+  const make = () => {
+    menu.contextMenu = ElectronMenu.buildFromTemplate(menu.items)
+  }
+
+  const append = (menuItem: Electron.MenuItem) => {
+    menu.items.push(menuItem)
+    menu.contextMenu.append(menuItem)
+  }
+
+  const remove = (itemId: string) => {
+    const hasDeleted = menu.items.filter((i) => i.id === itemId).length > 0
+
+    menu.items = menu.items.filter((i) => i.id !== itemId)
+    make()
+
+    return hasDeleted
+  }
 
   const menu: Menu = {
     id: init.id ?? crypto.randomUUID(),
-    contextMenu: contextMenu,
+    items: [] as MenuItem[],
+    contextMenu: ElectronMenu.buildFromTemplate([]),
+    append,
+    remove,
   }
 
   // new r
@@ -38,25 +54,71 @@ function createMenu(init: MenuInit) {
   return menu.id
 }
 
-function registerContextMenuIpc() {
-  ipcMain.handle('contextMenu::create', (_e, menuInit: MenuInit) => {
+function getMenuById(id: string) {
+  const menu = context.get(id)
+  if (!menu) {
+    const err = new Error("DEVELOPMENT: the context menu you are trying to access doesn't exists in context")
+    err.name = 'ContextMenu not found'
+
+    throw err
+  }
+
+  return menu
+}
+
+function handle(name: string, handler: (e: Electron.IpcMainInvokeEvent, ...args: any[]) => unknown | Promise<unknown>) {
+  ipcMain.handle(name, async (e, ...args) => {
+    try {
+      return await Promise.try(() => handler(e, ...args))
+    } catch (err) {
+      const error = err instanceof Error ? err : Error(String(err))
+      console.error(error)
+      throw error
+    }
+  })
+}
+
+function registerContextMenuIpc(win: BrowserWindow) {
+  handle('contextMenu::create', (_e, menuInit: MenuInit) => {
     return createMenu(menuInit)
   })
 
-  ipcMain.handle('contextMenu::show', (_e, menuId: string) => {
+  handle('contextMenu::remove', (_e, { menuId }: { menuId: string }) => {
+    const hasDeleted = menuId in context
+
+    delete context[menuId]
+
+    return hasDeleted
+  })
+
+  handle('contextMenu::show', (_e, menuId: string) => {
     console.log('showing menu ' + menuId + '\n\n')
-
-    const menu = context.get(menuId)
-    if (!menu) {
-      dialog.showErrorBox(
-        'ContextMenu not found',
-        "DEVELOPMENT: the context menu you are trying to access doesn't exists in context"
-      )
-
-      return
-    }
+    const menu = getMenuById(menuId)
 
     menu.contextMenu.popup()
+  })
+
+  ipcMain.handle('contextMenu::appendItem', (_e, { menuId, label }: { menuId: string; label: string }) => {
+    const menu = getMenuById(menuId)
+    const id = crypto.randomUUID()
+    const menuItem = new MenuItem({
+      id: id,
+      label: label,
+      click: () => {
+        win.webContents.send('contextMenu::clickedItem', {
+          itemId: id,
+        })
+      },
+    })
+
+    menu.append(menuItem)
+    return id
+  })
+
+  ipcMain.handle('contextMenu::removeItem', (_e, { menuId, itemId }: { menuId: string; itemId: string }) => {
+    const menu = getMenuById(menuId)
+
+    return menu.remove(itemId)
   })
 }
 

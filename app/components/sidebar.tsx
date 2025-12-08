@@ -7,7 +7,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useStore } from 'zustand'
 import { FocusMainSearch } from '../events'
 import { computed, signal, useComputed, useSignal, useSignalEffect } from '@preact/signals-react'
-import { createContextMenu } from '@/app/features/context-menu'
+import { MenuContext } from '@/app/features/context-menu'
 
 function Sidebar() {
   const { fetchers, add, setSelected } = useFiles()
@@ -15,6 +15,7 @@ function Sidebar() {
   const searchText$ = useSignal('')
 
   const fetchers$ = useSignal<typeof fetchers>(fetchers)
+
   useEffect(() => {
     fetchers$.value = fetchers
   }, [fetchers, fetchers$])
@@ -23,13 +24,11 @@ function Sidebar() {
     return Object.values(fetchers$.value).filter((f) => f.details.name?.includes(searchText$.value))
   })
 
-  const menuPromise = useMemo(() => createContextMenu(), [])
-
   return (
     <>
       <div
         ref={sidebarRef}
-        className="bg- sidebar text-sidebar-foreground border-r-[0.5px] border-black relative h-full flex flex-col min-h-0"
+        className="text-sidebar-foreground border-r-[0.5px] border-black relative h-full flex flex-col min-h-0"
         style={{
           minWidth: 200,
           width: 300,
@@ -90,11 +89,7 @@ function Sidebar() {
 
         <ul
           className="flex flex-col p-1.5 pb-3 gap-1 flex-1 overflow-auto border-t-[0.5px] border-black/0"
-          onContextMenu={() => {
-            menuPromise.then((menu) => {
-              menu.show()
-            })
-          }}
+          id="sidebar"
         >
           {filteredFetchers$.value.map(({ details: fetcher }) => {
             return <FileItem key={fetcher.id} {...{ fetcher, setSelected }} />
@@ -103,6 +98,11 @@ function Sidebar() {
 
         <ResizeBar targetRef={sidebarRef} />
       </div>
+
+      <MenuContext.Root htmlFor="sidebar">
+        <MenuContext.Item label="Hello Item" onClick={() => console.log('Hello')} />
+        <MenuContext.Item label="Foo bar" onClick={() => console.log('Foo Bar')} />
+      </MenuContext.Root>
     </>
   )
 }

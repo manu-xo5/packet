@@ -7,23 +7,30 @@ type Props = {
 }
 
 export function ResizeBar({ targetRef, orientation = 'vertical' }: Props) {
-  const pointerDownRef = useRef(false)
+  const startCtx = useRef<null | {
+    mousePos: number
+    dimension: number
+  }>(null)
 
   useEffect(() => {
     const handlePointerMove = (e: PointerEvent) => {
-      if (!pointerDownRef.current) {
+      if (!startCtx.current) {
         return
       }
 
       if (orientation === 'vertical') {
-        targetRef.current?.style.setProperty('width', e.clientX + 'px')
+        const delta = e.clientX - startCtx.current.mousePos
+
+        targetRef.current?.style.setProperty('width', startCtx.current.dimension + delta + 'px')
       } else if (orientation === 'horizontal') {
-        targetRef.current?.style.setProperty('height', e.clientY + 'px')
+        const delta = e.clientY - startCtx.current.mousePos
+
+        targetRef.current?.style.setProperty('height', startCtx.current.dimension + delta + 'px')
       }
     }
 
     const handlePointerUp = () => {
-      pointerDownRef.current = false
+      startCtx.current = null
       document.body.style.removeProperty('user-select')
     }
 
@@ -39,15 +46,23 @@ export function ResizeBar({ targetRef, orientation = 'vertical' }: Props) {
   return (
     <div
       className={cn(
-        'box-content absolute translate-x-1/2 transition-opacity',
-        orientation === 'vertical' && 'px-0.25 w-0.75 h-full top-0 right-0  cursor-ew-resize',
-        orientation === 'horizontal' && 'py-0.25 h-0.75 w-full bottom-0 left-0 cursor-ns-resize'
+        'box-content absolute transition-opacity z-10',
+        orientation === 'vertical' && 'px-px w-0.75 h-full top-0 right-0  cursor-ew-resize translate-x-1/2',
+        orientation === 'horizontal' && 'py-px h-0.75 w-full bottom-0 left-0 cursor-ns-resize translate-y-1/2'
       )}
-      onPointerDown={() => {
-        pointerDownRef.current = true
+      onPointerDown={(ev) => {
+        startCtx.current =
+          orientation === 'vertical'
+            ? {
+                mousePos: ev.clientX,
+                dimension: targetRef.current?.clientWidth ?? 0,
+              }
+            : {
+                mousePos: ev.clientY,
+                dimension: targetRef.current?.clientHeight ?? 0,
+              }
         document.body.style.setProperty('user-select', 'none')
       }}
-
       role="aside"
     >
       <div className="w-full h-full" />

@@ -28,7 +28,7 @@ function Sidebar() {
     <>
       <div
         ref={sidebarRef}
-        className="text-sidebar-foreground border-r-[0.5px] border-black relative h-full flex flex-col min-h-0"
+        className="text-sidebar-foreground border-r-[1.5px] border-black relative h-full flex flex-col min-h-0"
         style={{
           minWidth: 200,
           width: 300,

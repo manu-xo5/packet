@@ -20,7 +20,7 @@ function Dashboard() {
       if (e.key === 'k' && e.metaKey) {
         window.dispatchEvent(FocusMainSearch.new())
       }
-      
+
       if (e.key === 't' && e.metaKey) {
         window.dispatchEvent(NewTopTab.new())
       }
@@ -61,7 +61,11 @@ function Inner() {
             <UrlInput />
           </div>
 
-          <div ref={ref} style={{ height: 400 }} className="flex-none flex-col flex relative">
+          <div
+            ref={ref}
+            style={{ height: 400, minHeight: '20vh', maxHeight: '70vh' }}
+            className="flex-none flex-col flex relative"
+          >
             <RequestBox />
             <ResizeBar targetRef={ref} orientation="horizontal" />
           </div>

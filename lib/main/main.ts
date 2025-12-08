@@ -5,6 +5,7 @@ import { homedir } from 'node:os'
 import * as path from 'node:path'
 import { SimpleFileCookieStore } from '../tough-file-store'
 import { createAppWindow } from './app'
+import { registerContextMenuIpc } from './context-menu'
 
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.mohitmatwaya.packet')
@@ -18,6 +19,8 @@ app.whenReady().then(() => {
     const [input, init] = args
     return fetcher(input, init)
   })
+
+  registerContextMenuIpc()
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)

@@ -3,10 +3,11 @@ import { Button } from '@/app/components/ui/button'
 import { Input } from '@/app/components/ui/input'
 import { useFiles } from '@/app/store/files'
 import { PlusIcon } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useStore } from 'zustand'
 import { FocusMainSearch } from '../events'
 import { computed, signal, useComputed, useSignal, useSignalEffect } from '@preact/signals-react'
+import { createContextMenu } from '@/app/features/context-menu'
 
 function Sidebar() {
   const { fetchers, add, setSelected } = useFiles()
@@ -21,6 +22,8 @@ function Sidebar() {
   const filteredFetchers$ = useComputed(() => {
     return Object.values(fetchers$.value).filter((f) => f.details.name?.includes(searchText$.value))
   })
+
+  const menuPromise = useMemo(() => createContextMenu(), [])
 
   return (
     <>
@@ -85,7 +88,14 @@ function Sidebar() {
           </form>
         </div>
 
-        <ul className="flex flex-col p-1.5 pb-3 gap-1 flex-1 overflow-auto border-t-[0.5px] border-black/0">
+        <ul
+          className="flex flex-col p-1.5 pb-3 gap-1 flex-1 overflow-auto border-t-[0.5px] border-black/0"
+          onContextMenu={() => {
+            menuPromise.then((menu) => {
+              menu.show()
+            })
+          }}
+        >
           {filteredFetchers$.value.map(({ details: fetcher }) => {
             return <FileItem key={fetcher.id} {...{ fetcher, setSelected }} />
           })}

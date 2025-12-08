@@ -12,6 +12,10 @@ export function createAppWindow(): void {
     show: false,
     icon: appIcon,
     titleBarStyle: 'hiddenInset',
+    trafficLightPosition: {
+      x: 12,
+      y: 12,
+    },
     title: 'Packet',
     maximizable: true,
     resizable: true,

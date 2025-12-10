@@ -1,26 +1,26 @@
-import { useStore } from 'zustand'
-import { useFetcherStore } from '@/app/store/fetcher'
 import { KeyValInputList } from '@/app/components/key-val-input-list'
+import { useC } from '@/app/store/fetcher'
 
 const CookieTab = () => {
-  const [, store] = useFetcherStore()
-  const cookies = useStore(store, (s) => s.request.cookies)
+  const { curFetcher$, updateCur$ } = useC()
+
+  const cookies = curFetcher$.value?.request.cookies ?? []
 
   return (
     <KeyValInputList
       items={cookies}
       onChangeName={(i, name) => {
-        store.setState((s) => {
+        updateCur$((s) => {
           s.request.cookies[i].name = name
         })
       }}
       onChangeValue={(i, value) => {
-        store.setState((s) => {
+        updateCur$((s) => {
           s.request.cookies[i].value = value
         })
       }}
       onDeleteChange={(i, deleted) => {
-        store.setState((s) => {
+        updateCur$((s) => {
           s.request.cookies[i].deleted = deleted
         })
       }}

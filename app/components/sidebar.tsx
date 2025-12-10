@@ -2,26 +2,20 @@ import { ResizeBar } from '@/app/components/resize-bar'
 import { Button } from '@/app/components/ui/button'
 import { Input } from '@/app/components/ui/input'
 import { MenuContext } from '@/app/features/context-menu'
-import { useFiles } from '@/app/store/files'
 import { useComputed, useSignal } from '@preact/signals-react'
 import { PlusIcon } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
-import { useStore } from 'zustand'
+import { useRef, useState } from 'react'
 import { FocusMainSearch } from '../events'
+import { createDefaultFetcher, useC, useFetcher__new } from '../store/fetcher'
 
 function Sidebar() {
-  const { fetchers, add, setSelected } = useFiles()
+  const { fetchers$ } = useC()
+
   const sidebarRef = useRef<HTMLDivElement>(null)
   const searchText$ = useSignal('')
 
-  const fetchers$ = useSignal<typeof fetchers>(fetchers)
-
-  useEffect(() => {
-    fetchers$.value = fetchers
-  }, [fetchers, fetchers$])
-
-  const filteredFetchers$ = useComputed(() => {
-    return Object.values(fetchers$.value).filter((f) => f.details.name?.includes(searchText$.value))
+  const fetchersList$ = useComputed(() => {
+    return Object.entries(fetchers$.value).filter(([, { url }]) => url.includes(searchText$.value))
   })
 
   return (
@@ -53,7 +47,12 @@ function Sidebar() {
             type="button"
             variant="secondary"
             size="icon-xs"
-            onClick={() => add()}
+            onClick={() => {
+              fetchers$.value = {
+                ...fetchers$.value,
+                [window.crypto.randomUUID()]: createDefaultFetcher(),
+              }
+            }}
             className="bg-gray-400/40 [-webkit-app-region:no-drag]"
           >
             <PlusIcon className="size-3/4" />
@@ -63,14 +62,12 @@ function Sidebar() {
         <div className="border-t border-black/0">
           <form className="h-header p-[6.5px] flex items-center">
             <div className="h-full bg-white/10 rounded-sm flex-1 flex items-center gap-1.25 px-2.5">
-              <Svg />
+              <SearchIcon />
               <input
                 ref={(node) => {
                   if (!node) return
-                  const handle = () => {
-                    node.focus()
-                  }
 
+                  const handle = () => node.focus()
                   window.addEventListener(FocusMainSearch.type, handle)
 
                   return () => window.removeEventListener(FocusMainSearch.type, handle)
@@ -96,8 +93,8 @@ function Sidebar() {
           className="flex flex-col p-1.5 pb-3 gap-1 flex-1 overflow-auto border-t-[0.5px] border-black/0"
           id="sidebar"
         >
-          {filteredFetchers$.value.map(({ details: fetcher }) => {
-            return <FileItem key={fetcher.id} {...{ fetcher, setSelected }} />
+          {fetchersList$.value.map(([id]) => {
+            return <FileItem key={id} fetcherId={id} />
           })}
         </ul>
 
@@ -117,49 +114,56 @@ function Sidebar() {
   )
 }
 
-function FileItem({ fetcher }: { fetcher: { id: string; name?: string } }) {
-  const { selected, setSelected, rename, fetchers } = useFiles()
+function FileItem({ fetcherId }: { fetcherId: string }) {
   const [editing, setEditing] = useState(false)
 
-  const method = useStore(fetchers[fetcher.id].store, (s) => s.method)
+  const fetcher$ = useFetcher__new(fetcherId)
+  const { selectedId$ } = useC()
 
-  const isSelected = selected === fetcher.id
+  const isSelected = fetcherId === selectedId$.value
 
   return (
-    <li key={fetcher.id}>
+    <li>
       {editing ? (
         <Input
           ref={(node) => {
             if (!node) return
 
             node.focus()
-            node.setSelectionRange(0, fetcher.id.length)
+            node.setSelectionRange(0, fetcher$.value.url.length)
           }}
-          defaultValue={fetcher.name}
+          defaultValue={fetcher$.value.url}
           onKeyDown={(ev) => {
             if (ev.key === 'Enter') {
               ev.preventDefault()
 
               const value = ev.currentTarget.value
-              rename(fetcher.id, value)
+              throw new Error('not implemented')
+
+              // rename(fetcher.id, value)
               setEditing(false)
             }
           }}
           onBlur={(ev) => {
             const value = ev.currentTarget.value
-            rename(fetcher.id, value)
             setEditing(false)
+
+            throw new Error('not implemented')
+
+            // rename(fetcher.id, value)
           }}
         />
       ) : (
         <Button
           className="justify-start w-full font-normal h-6 text-sm rounded-sm px-3 relative"
           variant={isSelected ? 'default' : 'ghost'}
-          onClick={() => setSelected(fetcher.id)}
+          onClick={() => {
+            selectedId$.value = fetcherId
+          }}
           onDoubleClick={() => setEditing(true)}
         >
           <span className="min-w-0 truncate z-10">
-            {method} {fetcher.name}
+            {fetcher$.value.method} {fetcher$.value.url}
           </span>
         </Button>
       )}
@@ -167,7 +171,7 @@ function FileItem({ fetcher }: { fetcher: { id: string; name?: string } }) {
   )
 }
 
-function Svg() {
+function SearchIcon() {
   return (
     <svg
       version="1.1"

@@ -1,9 +1,9 @@
 import { fetcher } from '@/lib/fetcher'
+import { produce } from 'immer'
 import { Loader2Icon } from 'lucide-react'
 import { useActionState } from 'react'
-import { useStore } from 'zustand'
 import { METHODS, TMethod } from '../data/methods'
-import { CookieObj, HeaderObj, useFetcherStore } from '../store/fetcher'
+import { CookieObj, HeaderObj, useC } from '../store/fetcher'
 import { Button } from './ui/button'
 import { IconButton } from './ui/icon-button'
 import { NativeSelect, NativeSelectOption } from './ui/native-select'
@@ -49,40 +49,40 @@ function cookieResponseDto(_rawCookie: string): CookieObj[] {
 void cookieResponseDto
 
 function UrlInput() {
-  const [, store] = useFetcherStore()
-  const { url, method } = useStore(store)
-  const [, dispatch, isPending] = useActionState(
-    async function action() {
-      const { url, method, request } = store.getState()
+  const { fetchers$, selectedId$, curFetcher$, updateCur$ } = useC()
 
-      const res = await fetcher(url, {
-        method: method,
-        headers: headerRequestDto([
-          ...request.headers,
-          {
-            id: window.crypto.randomUUID(),
-            name: 'Cookie',
-            value: cookieRequestDto(request.cookies),
-            deleted: false,
-          },
-        ]),
-      })
+  const [, dispatch, isPending] = useActionState(async function action() {
+    if (!curFetcher$.value) {
+      return
+    }
 
-      if (!res.ok) {
-        console.error(res.error)
-        return
-      }
+    const { url, method, request } = curFetcher$.value
 
-      store.setState({
-        response: {
-          headers: headerResponseDto(res.value.headers),
-          text: res.value.text,
+    const res = await fetcher(url, {
+      method: method,
+      headers: headerRequestDto([
+        ...request.headers,
+        {
+          id: window.crypto.randomUUID(),
+          name: 'Cookie',
+          value: cookieRequestDto(request.cookies),
+          deleted: false,
         },
-      })
-    },
+      ]),
+    })
 
-    undefined
-  )
+    if (!res.ok) {
+      console.error(res.error)
+      return
+    }
+
+    updateCur$((d) => {
+      d.response = {
+        headers: headerResponseDto(res.value.headers),
+        text: res.value.text,
+      }
+    })
+  }, undefined)
 
   return (
     <>
@@ -91,10 +91,18 @@ function UrlInput() {
           className="bg-transparent dark:bg-transparent text-tertiary hover:text-primary font-bold"
           size="fit"
           accessory={<></>}
-          value={method}
+          value={curFetcher$.value?.method}
           onChange={(ev) => {
             const next = ev.currentTarget.value
-            store.setState({ method: next as TMethod })
+
+            const selectedId = selectedId$.value
+            if (!selectedId) {
+              return
+            }
+
+            fetchers$.value = produce(fetchers$.peek(), (draft) => {
+              draft[selectedId].method = next as TMethod
+            })
           }}
         >
           {METHODS.map((methodName) => (
@@ -108,30 +116,32 @@ function UrlInput() {
           className="w-full pl-0 rounded-none border-none bg-transparent dark:bg-transparent text-xs! font-[monospace]"
           placeholder="http://..."
           name="url"
-          value={url}
+          value={curFetcher$.value?.url ?? ''}
           onChange={(e) => {
             const value = e.currentTarget.value
-            store.setState({ url: value })
+            const selectedId = selectedId$.value
+            if (!selectedId) {
+              return
+            }
+
+            fetchers$.value = produce(fetchers$.peek(), (draft) => {
+              draft[selectedId].url = value
+            })
           }}
         />
 
         <Button type="submit" className="rounded-sm w-auto gap-1.5">
           Send
-          {isPending ? <Loader2Icon className="animate-spin" /> : <Svg />}
+          {isPending ? <Loader2Icon className="animate-spin" /> : <ReturnIcon />}
         </Button>
 
-        <IconButton icon={Save} />
-        {
-          //<Button type="button" className="w-8!" variant="ghost" size="icon">
-        }
-
-        {/* <Input placeholder="http://..." name="url" defaultValue="http://192.168.0.3:6002/auth/me" /> */}
+        <IconButton icon={TraySaveIcon} />
       </form>
     </>
   )
 }
 
-function Svg() {
+function ReturnIcon() {
   return (
     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26.6699 24.1504" className="size-2.5">
       <g>
@@ -146,7 +156,7 @@ function Svg() {
   )
 }
 
-function Save() {
+function TraySaveIcon() {
   return (
     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 29.9512 30.9082" className="size-3.5">
       <g>

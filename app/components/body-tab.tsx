@@ -1,6 +1,7 @@
+import { cn } from '@/lib/utils'
 import { Textarea } from './ui/textarea'
 
-export function BodyTab({ text }: { text: string }) {
+function BodyTab({ className, text }: { className?: string; text: string }) {
   const jsonStringified = (() => {
     try {
       if (!text) return ''
@@ -10,5 +11,7 @@ export function BodyTab({ text }: { text: string }) {
     }
   })()
 
-  return <Textarea className="overflow-x-auto flex-1" value={jsonStringified} readOnly />
+  return <Textarea className={cn('overflow-x-auto flex-1', className)} value={jsonStringified} readOnly />
 }
+
+export { BodyTab }

@@ -2,7 +2,7 @@ import { Sidebar } from '@/app/components/sidebar'
 import { FilesProvider, useFiles } from '@/app/store/files'
 import { Activity, useEffect, useRef, useState } from 'react'
 import { FocusMainSearch, NewTopTab } from '../events'
-import { FetcherStoreCtx, useFetcherStore } from '../store/fetcher'
+import { CProvider, FetcherStoreCtx, useC } from '../store/fetcher'
 import { BodyTab } from './body-tab'
 import { RequestBodyTab } from './body-tab-request'
 import { CookieTab } from './cookie-tab'
@@ -12,7 +12,6 @@ import { ResizeBar } from './resize-bar'
 import { TopTab } from './top-tab'
 import { TabButton, TabGroup } from './ui/tabs'
 import { UrlInput } from './url-input'
-import { useStore } from 'zustand'
 
 function Dashboard() {
   useEffect(() => {
@@ -48,34 +47,36 @@ function Inner() {
   }
 
   return (
-    <FetcherStoreCtx value={[selectedFetcher.details, selectedFetcher.store]}>
-      <div className="grid grid-cols-[auto_1fr] h-full">
-        <Sidebar />
+    <CProvider>
+      <FetcherStoreCtx value={[selectedFetcher.details, selectedFetcher.store]}>
+        <div className="grid grid-cols-[auto_1fr] h-full">
+          <Sidebar />
 
-        <div className="px-0 h-full flex flex-col bg-background text-foreground">
-          <header className="h-header [-webkit-app-region:drag]">
-            <TopTab />
-          </header>
+          <div className="px-0 h-full flex flex-col bg-background text-foreground">
+            <header className="h-header [-webkit-app-region:drag]">
+              <TopTab />
+            </header>
 
-          <div className="border-t border-black">
-            <UrlInput />
-          </div>
+            <div className="border-t border-black">
+              <UrlInput />
+            </div>
 
-          <div
-            ref={ref}
-            style={{ height: 400, minHeight: '20vh', maxHeight: '70vh' }}
-            className="flex-none flex-col flex relative"
-          >
-            <RequestBox />
-            <ResizeBar targetRef={ref} orientation="horizontal" />
-          </div>
+            <div
+              ref={ref}
+              style={{ height: 400, minHeight: '20vh', maxHeight: '70vh' }}
+              className="flex-none flex-col flex relative"
+            >
+              <RequestBox />
+              <ResizeBar targetRef={ref} orientation="horizontal" />
+            </div>
 
-          <div className="flex-1 flex flex-col min-h-0">
-            <ResponseBox />
+            <div className="flex-1 flex flex-col min-h-0">
+              <ResponseBox />
+            </div>
           </div>
         </div>
-      </div>
-    </FetcherStoreCtx>
+      </FetcherStoreCtx>
+    </CProvider>
   )
 }
 
@@ -100,30 +101,26 @@ function RequestBox() {
 
       <div className="h-[0.5px] bg-border" />
 
-      <Activity mode={selectedTab === 'headers' ? 'visible' : 'hidden'}>
+      {selectedTab === 'headers' ? (
         <RequestHeaderTab />
-      </Activity>
-
-      <Activity mode={selectedTab === 'body' ? 'visible' : 'hidden'}>
+      ) : selectedTab === 'body' ? (
         <div className="flex-1 min-h-0">
           <RequestBodyTab />
         </div>
-      </Activity>
-
-      <Activity mode={selectedTab === 'cookie' ? 'visible' : 'hidden'}>
+      ) : selectedTab === 'cookie' ? (
         <div className="flex-1 min-h-0">
           <CookieTab />
         </div>
-      </Activity>
+      ) : null}
     </div>
   )
 }
 
 function ResponseBox() {
-  const [, store] = useFetcherStore()
-  const {
-    response: { headers, text },
-  } = useStore(store)
+  const { curFetcher$ } = useC()
+
+  const headers = curFetcher$.value?.response.headers ?? []
+  const text = curFetcher$.value?.response.text ?? ''
 
   const [selectedTab, setTab] = useState<'headers' | 'body' | 'cookie'>('headers')
 
@@ -144,13 +141,17 @@ function ResponseBox() {
 
       <div className="h-[0.5px] bg-border" />
 
-      <Activity mode={selectedTab === 'headers' ? 'visible' : 'hidden'}>
-        <HeaderTab headers={headers} />
-      </Activity>
-
-      <Activity mode={selectedTab === 'body' ? 'visible' : 'hidden'}>
-        <BodyTab text={text} />
-      </Activity>
+      {selectedTab === 'headers' ? (
+        <div className="bg-card flex-1">
+          <HeaderTab headers={headers} />
+        </div>
+      ) : selectedTab === 'body' ? (
+        <div className="flex-1 min-h-0">
+          <BodyTab className="h-full bg-transparent dark:bg-card border-none rounded-none ring-0!" text={text} />
+        </div>
+      ) : (
+        <div className="h-full bg-card" />
+      )}
     </div>
   )
 }

@@ -1,8 +1,11 @@
 import { contextBridge, ipcRenderer } from 'electron'
+import fs from 'fs/promises'
 
 contextBridge.exposeInMainWorld('fetcher', (...args) => ipcRenderer.invoke('fetcher', ...args))
 
 contextBridge.exposeInMainWorld('platform', process.platform)
+
+contextBridge.exposeInMainWorld('fs', fs)
 
 contextBridge.exposeInMainWorld('contextMenu', {
   onClickedItem: (handler) => {

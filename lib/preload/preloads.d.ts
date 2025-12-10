@@ -6,6 +6,8 @@ declare global {
 
     fetcher: Fetcher
 
+    fs: typeof import('fs/promises')
+
     contextMenu: {
       onClickedItem: (handler: (ev: { itemId: string }) => void) => () => void
       // hide: (menuId: string) => ipcRenderer.invoke('...', ...args),

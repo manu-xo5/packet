@@ -1,89 +1,62 @@
-import { useStore } from 'zustand'
+import { useComputed } from '@preact/signals-react'
+import { useC } from '../store/fetcher'
 import { Textarea } from './ui/textarea'
-import { useFetcherStore } from '../store/fetcher'
 
 function RequestBodyTab() {
-  const [, store] = useFetcherStore()
-  const text = useStore(store, (s) => s.request.text)
-  const error = (() => {
+  const { curFetcher$, updateCur$ } = useC()
+
+  const error$ = useComputed(() => {
     try {
+      const text = curFetcher$.value?.request.text ?? ''
+
       if (!text.trim()) return ''
       JSON.parse(text)
       return ''
     } catch (err) {
       return err instanceof Error ? err.message : String(err)
     }
-  })()
+  })
 
   const tabWidth = 2
-  const getIndentationLevel = (cursor: number) => {
-    let level = 0
-    for (let i = 0; i < text.length && i < cursor; i++) {
-      const char = text[i]
-      if (char === '{' || char === '[') {
-        level += 1
-        continue
-      }
-
-      if (char === '}' || char === ']') {
-        level -= 1
-        continue
-      }
-    }
-
-    return Math.max(0, level)
+  const getIndentationLevel = () => {
+    throw new Error('not implemented')
   }
+  void getIndentationLevel
 
   return (
-    <div className="h-full flex border-input border overflow-hidden">
+    <div className="h-full flex bg-sidebar overflow-hidden">
       <Textarea
-        className="overflow-x-auto h-full border-0 rounded-r-none font-mono"
-        value={text}
+        className="overflow-x-auto h-full border-0 rounded-none font-mono bg-transparent dark:bg-transparent"
+        value={curFetcher$.value?.request.text ?? ''}
         onKeyDown={(ev) => {
+          const cursor = ev.currentTarget.selectionStart
+
           if (ev.key === 'Tab') {
-            const cursor = ev.currentTarget.selectionStart
-            const indentationLevel = getIndentationLevel(cursor)
-            const indentation = indentationLevel * tabWidth
-
             ev.preventDefault()
             ev.currentTarget.value = [
               ev.currentTarget.value.slice(0, cursor),
-              ' '.repeat(indentation),
+              ' '.repeat(tabWidth),
               ev.currentTarget.value.slice(cursor),
             ].join('')
 
-            ev.currentTarget.selectionStart = cursor + indentation
-            ev.currentTarget.selectionEnd = cursor + indentation
-            return
-          }
-
-          if (ev.key === 'Enter') {
-            ev.preventDefault()
-            const cursor = ev.currentTarget.selectionStart
-            const indentation = getIndentationLevel(cursor) * tabWidth
-            ev.currentTarget.value = [
-              ev.currentTarget.value.slice(0, cursor),
-              '\n',
-              ' '.repeat(indentation),
-              ev.currentTarget.value.slice(cursor),
-            ].join('')
-
-            ev.currentTarget.selectionStart = cursor + indentation + 1
-            ev.currentTarget.selectionEnd = cursor + indentation + 1
+            ev.currentTarget.selectionStart = cursor + tabWidth
+            ev.currentTarget.selectionEnd = cursor + tabWidth
             return
           }
         }}
         onChange={(ev) => {
-          store.setState((s) => {
-            s.request.text = ev.currentTarget.value
+          const value = ev.currentTarget.value
+
+          updateCur$((d) => {
+            d.request.text = value
           })
         }}
         placeholder={`{\n\t"hello": "world"\n\t...\n}`}
       />
 
-      {error ? (
+      {error$.value ? (
         <div className="w-[300px] overflow-auto p-3 border-l-input border-l bg-secondary">
-          <p className="text-destructive">{error}</p>
+          <p className="text-destructive">{error$.value}</p>
         </div>
       ) : null}
     </div>

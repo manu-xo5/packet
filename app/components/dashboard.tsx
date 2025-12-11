@@ -1,8 +1,7 @@
 import { Sidebar } from '@/app/components/sidebar'
-import { FilesProvider, useFiles } from '@/app/store/files'
-import { Activity, useEffect, useRef, useState } from 'react'
-import { FocusMainSearch, NewTopTab } from '../events'
-import { CProvider, FetcherStoreCtx, useC } from '../store/fetcher'
+import { useEffect, useRef, useState } from 'react'
+import { FocusMainSearch, NewTopTab, SaveCurFetcher } from '../events'
+import { CProvider, useC } from '../store/fetcher'
 import { BodyTab } from './body-tab'
 import { RequestBodyTab } from './body-tab-request'
 import { CookieTab } from './cookie-tab'
@@ -14,6 +13,8 @@ import { TabButton, TabGroup } from './ui/tabs'
 import { UrlInput } from './url-input'
 
 function Dashboard() {
+  const ref = useRef<any>(null)
+
   useEffect(() => {
     const handleKeyboardShortcut = (e: KeyboardEvent) => {
       if (e.key === 'k' && e.metaKey) {
@@ -23,6 +24,10 @@ function Dashboard() {
       if (e.key === 't' && e.metaKey) {
         window.dispatchEvent(NewTopTab.new())
       }
+
+      if (e.key === 's' && e.metaKey) {
+        window.dispatchEvent(SaveCurFetcher.new())
+      }
     }
 
     window.addEventListener('keydown', handleKeyboardShortcut)
@@ -31,51 +36,33 @@ function Dashboard() {
   }, [])
 
   return (
-    <FilesProvider>
-      <Inner />
-    </FilesProvider>
-  )
-}
-
-function Inner() {
-  const { fetchers, selected } = useFiles()
-  const selectedFetcher = fetchers[selected]
-  const ref = useRef<any>(null)
-
-  if (!selectedFetcher) {
-    throw new Error('invariant')
-  }
-
-  return (
     <CProvider>
-      <FetcherStoreCtx value={[selectedFetcher.details, selectedFetcher.store]}>
-        <div className="grid grid-cols-[auto_1fr] h-full">
-          <Sidebar />
+      <div className="grid grid-cols-[auto_1fr] h-full">
+        <Sidebar />
 
-          <div className="px-0 h-full flex flex-col bg-background text-foreground">
-            <header className="h-header [-webkit-app-region:drag]">
-              <TopTab />
-            </header>
+        <div className="px-0 h-full flex flex-col bg-background text-foreground">
+          <header className="h-header [-webkit-app-region:drag]">
+            <TopTab />
+          </header>
 
-            <div className="border-t border-black">
-              <UrlInput />
-            </div>
+          <div className="border-t border-black">
+            <UrlInput />
+          </div>
 
-            <div
-              ref={ref}
-              style={{ height: 400, minHeight: '20vh', maxHeight: '70vh' }}
-              className="flex-none flex-col flex relative"
-            >
-              <RequestBox />
-              <ResizeBar targetRef={ref} orientation="horizontal" />
-            </div>
+          <div
+            ref={ref}
+            style={{ height: 400, minHeight: '20vh', maxHeight: '70vh' }}
+            className="flex-none flex-col flex relative"
+          >
+            <RequestBox />
+            <ResizeBar targetRef={ref} orientation="horizontal" />
+          </div>
 
-            <div className="flex-1 flex flex-col min-h-0">
-              <ResponseBox />
-            </div>
+          <div className="flex-1 flex flex-col min-h-0">
+            <ResponseBox />
           </div>
         </div>
-      </FetcherStoreCtx>
+      </div>
     </CProvider>
   )
 }

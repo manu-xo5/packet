@@ -138,6 +138,7 @@ function FileItem({ fetcherId }: { fetcherId: string }) {
               ev.preventDefault()
 
               const value = ev.currentTarget.value
+              void value
               throw new Error('not implemented')
 
               // rename(fetcher.id, value)
@@ -146,6 +147,7 @@ function FileItem({ fetcherId }: { fetcherId: string }) {
           }}
           onBlur={(ev) => {
             const value = ev.currentTarget.value
+            void value
             setEditing(false)
 
             throw new Error('not implemented')

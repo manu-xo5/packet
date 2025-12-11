@@ -15,8 +15,11 @@ export type AppendItemArgs = [
   >,
 ]
 
-function registerContextMenuIpc(win: BrowserWindow) {
-  ipcMain.handle('contextMenu::render', (_e, vl) => {
+function registerContextMenuIpc() {
+  ipcMain.handle('contextMenu::render', (e, vl) => {
+    const win = BrowserWindow.fromWebContents(e.sender)
+    if (!win) return
+
     const recCreateMenu = (v: any) => {
       if (!v) return undefined
 

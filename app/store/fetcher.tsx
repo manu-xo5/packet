@@ -1,11 +1,8 @@
 import { Signal, useComputed, useSignal } from '@preact/signals-react'
-import { createContext, use } from 'react'
-import { createStore } from 'zustand'
-import { persist } from 'zustand/middleware'
-import { immer } from 'zustand/middleware/immer'
-import { TMethod } from '../data/methods'
-import { update$ } from '@/lib/signal/utils'
 import { produce } from 'immer'
+import { createContext, use, useEffect } from 'react'
+import { TMethod } from '../data/methods'
+import { SaveCurFetcher } from '../events'
 
 export type HeaderObj = Array<{
   id: string
@@ -55,70 +52,7 @@ const initialState: FetcherStore = {
   },
 }
 
-const createFetcherStore = () =>
-  createStore(
-    persist(
-      immer(
-        (): FetcherStore => ({
-          url: 'https://jsonplaceholder.typicode.com/posts',
-          method: 'GET',
-          request: {
-            text: '',
-            headers: [
-              { id: window.crypto.randomUUID(), name: 'content-type', value: 'application/json', deleted: false },
-            ],
-            cookies: [],
-          },
-          response: {
-            text: '',
-            headers: [],
-          },
-        })
-      ),
-      {
-        name: window.crypto.randomUUID(),
-        storage: {
-          getItem: () => null,
-          setItem: async (name, value) => {
-            const existing = await window.fs.readFile('./packet-state', 'utf-8').catch(() => '{}')
-            const newState = (() => {
-              try {
-                return JSON.stringify({ ...JSON.parse(existing), [name]: value }, null, 2)
-              } catch {
-                return JSON.stringify({ [name]: value })
-              }
-            })()
-            await window.fs.writeFile('./packet-state', newState)
-            console.log('save me', {
-              name,
-              value,
-            })
-          },
-          removeItem: () => {},
-        },
-      }
-    )
-  )
-
-// Context
-
-type Fetcher = {
-  id: string
-}
-
-type FetcherStoreApi = ReturnType<typeof createFetcherStore>
-type FetcherCtx = [Fetcher, FetcherStoreApi]
-
-const FetcherStoreCtx = createContext<FetcherCtx | undefined>(undefined)
-
-function useFetcherStore() {
-  const ctxValue = use(FetcherStoreCtx)
-  if (!ctxValue) {
-    throw new Error('useFetcher() can not be used outside FetcherStoreCtx')
-  }
-
-  return ctxValue
-}
+const CWD = window.cwd
 
 const C = createContext<
   | {
@@ -130,9 +64,47 @@ const C = createContext<
 
 type FetcherId = string
 
+async function getSavedFetchers() {
+  const json = await window.fs.readFile(CWD + '/fetchers.json')
+  if (!json.ok) {
+    return undefined
+  }
+
+  const state = await Promise.try(() => JSON.parse(json.data)).catch(() => undefined)
+
+  return state
+}
+
 const CProvider = ({ children }: { children: React.ReactNode }) => {
-  const fetchers$ = useSignal<Record<FetcherId, FetcherStore>>({})
-  const selectedId$ = useSignal<FetcherId | undefined>(undefined)
+  const fetchers$ = useSignal<Record<FetcherId, FetcherStore>>({
+    default: createDefaultFetcher(),
+  })
+  const selectedId$ = useSignal<FetcherId | undefined>('default')
+
+  useEffect(() => {
+    ;(async () => {
+      const savedFetchers = await getSavedFetchers()
+      if (!savedFetchers) {
+        return
+      }
+
+      fetchers$.value = savedFetchers
+    })()
+  }, [fetchers$])
+
+  useEffect(() => {
+    const handler = async (e: Event) => {
+      if (!SaveCurFetcher.is(e)) return
+
+      const filePath = CWD + '/fetchers.json'
+
+      window.fs.writeFile(filePath, JSON.stringify(fetchers$, null, 4)).catch((err) => console.error(err))
+    }
+
+    window.addEventListener(SaveCurFetcher.type, handler)
+
+    return () => window.removeEventListener(SaveCurFetcher.type, handler)
+  }, [fetchers$])
 
   return (
     <C.Provider
@@ -207,34 +179,6 @@ const useCurFetcher__new = () => {
   return selectedFetcher$
 }
 
-const createDefaultFetcher = (): FetcherStore => ({
-  // url: '',
-  // url: 'https://jsonplaceholder.typicode.com/posts',
-  url: 'https://postman-echo.com/cookies',
-  method: 'GET',
+const createDefaultFetcher = (): FetcherStore => initialState
 
-  request: {
-    text: '',
-    headers: [{ id: window.crypto.randomUUID(), name: 'content-type', value: 'application/json', deleted: false }],
-    cookies: [],
-  },
-
-  response: {
-    text: '',
-    headers: [],
-  },
-})
-
-export {
-  createFetcherStore,
-  FetcherStoreCtx,
-  useFetcherStore,
-  type FetcherCtx,
-  type FetcherStore,
-  type FetcherStoreApi,
-  CProvider,
-  useC,
-  useFetcher__new,
-  useCurFetcher__new,
-  createDefaultFetcher,
-}
+export { CProvider, createDefaultFetcher, useC, useCurFetcher__new, useFetcher__new, type FetcherStore }

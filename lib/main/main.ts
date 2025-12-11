@@ -6,10 +6,12 @@ import * as path from 'node:path'
 import { SimpleFileCookieStore } from '../tough-file-store'
 import { createAppWindow } from './app'
 import { registerContextMenuIpc } from './context-menu'
+import { registerDialogIpc } from './dialog'
+import { registerFsIpc } from './fs'
 
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.mohitmatwaya.packet')
-  const mainWindow = createAppWindow()
+  createAppWindow()
 
   const storage = new SimpleFileCookieStore(path.join(homedir(), 'packet-cookie'))
 
@@ -20,7 +22,9 @@ app.whenReady().then(() => {
     return fetcher(input, init)
   })
 
-  registerContextMenuIpc(mainWindow)
+  registerDialogIpc()
+  registerFsIpc()
+  registerContextMenuIpc()
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)

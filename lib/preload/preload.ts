@@ -1,7 +1,9 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import fs from 'fs/promises'
 
-const getFlat = (name: string) => {
+ipcRenderer.setMaxListeners(20)
+
+const getFlag = (name: string) => {
   const args = process.argv
   const nameFlag = `--${name}`
   const dataArg = args.find((arg) => arg.startsWith(nameFlag + '='))
@@ -16,7 +18,7 @@ const getFlat = (name: string) => {
 contextBridge.exposeInMainWorld('fetcher', (...args: any[]) => ipcRenderer.invoke('fetcher', ...args))
 
 contextBridge.exposeInMainWorld('platform', process.platform)
-contextBridge.exposeInMainWorld('cwd', getFlat('cwd'))
+contextBridge.exposeInMainWorld('cwd', getFlag('cwd'))
 
 contextBridge.exposeInMainWorld('contextMenu', {
   onClickedItem: (handler: any) => {

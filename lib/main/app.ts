@@ -1,10 +1,10 @@
 import appIcon from '@/resources/build/icon.png?asset'
-import { app, BrowserWindow, Menu, shell } from 'electron'
+import { app, BrowserWindow, dialog, Menu, shell } from 'electron'
 import * as fs from 'fs/promises'
 import * as fsSync from 'node:fs'
 import * as path from 'node:path'
 import { join } from 'path'
-import { showDirectoryPicker } from './dialog'
+import { createDirectoryPicker, promptDialog, showDirectoryPicker } from './dialog'
 
 async function createAppMenu(win: BrowserWindow) {
   const menu = Menu.buildFromTemplate([
@@ -16,13 +16,29 @@ async function createAppMenu(win: BrowserWindow) {
       role: 'fileMenu',
       submenu: [
         {
-          label: 'New Packet Window',
-        },
-        {
-          label: 'New Folder',
-        },
-        {
           label: 'New Request',
+          click: () => {
+            const win = BrowserWindow.getFocusedWindow()
+            if (!win) return
+
+            win.webContents.send('new-request')
+          },
+          accelerator: 'Cmd+N',
+        },
+        {
+          label: 'New Window',
+          click: () => {
+            createAppWindow()
+          },
+          accelerator: 'Cmd+Shift+N',
+        },
+        {
+          label: 'New Workspace',
+          click: async () => {
+            const result = await promptDialog(win)
+            console.log(result)
+            // createDirectoryPicker(win)
+          },
         },
         {
           type: 'separator',
@@ -32,9 +48,6 @@ async function createAppMenu(win: BrowserWindow) {
           click: () => {
             openAppWindow(win)
           },
-        },
-        {
-          label: 'Open Default Workspace',
         },
         {
           type: 'separator',

@@ -2,6 +2,7 @@
   "extends": "@electron-toolkit/tsconfig/tsconfig.node.json",
   "include": [
     "lib/main/index.d.ts",
+    "lib/swift-native-save-as/index.ts",
     "electron.vite.config.*",
     "lib/**/*",
     "resources/**/*",

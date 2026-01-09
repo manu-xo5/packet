@@ -8,8 +8,12 @@ import { createAppWindow } from './app'
 import { registerContextMenuIpc } from './context-menu'
 import { registerDialogIpc } from './dialog'
 import { registerFsIpc } from './fs'
+import * as native from '@/lib/swift-native-save-as'
 
 app.whenReady().then(() => {
+  setTimeout(() => {
+    native.showSaveDialog()
+  }, 2000)
   electronApp.setAppUserModelId('com.mohitmatwaya.packet')
   createAppWindow()
 

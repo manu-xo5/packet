@@ -14,9 +14,6 @@ importers:
       '@electron-toolkit/utils':
         specifier: ^4.0.0
         version: 4.0.0(electron@37.8.0)
-      '@preact/signals-react-transform':
-        specifier: ^0.6.0
-        version: 0.6.0(@babel/core@7.28.5)(react@19.2.0)
       '@radix-ui/react-select':
         specifier: ^2.2.6
         version: 2.2.6(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -41,6 +38,9 @@ importers:
       lucide-react:
         specifier: ^0.541.0
         version: 0.541.0(react@19.2.0)
+      node-addon-api:
+        specifier: ^8.5.0
+        version: 8.5.0
       tailwind-merge:
         specifier: ^3.3.1
         version: 3.3.1
@@ -69,6 +69,9 @@ importers:
       '@preact/signals-react':
         specifier: ^3.6.1
         version: 3.6.1(react@19.2.0)
+      '@preact/signals-react-transform':
+        specifier: ^0.6.0
+        version: 0.6.0(@babel/core@7.28.5)(react@19.2.0)
       '@rushstack/eslint-patch':
         specifier: ^1.12.0
         version: 1.14.1
@@ -2693,6 +2696,10 @@ packages:
 
   node-addon-api@1.7.2:
     resolution: {integrity: sha512-ibPK3iA+vaY1eEjESkQkM0BbCqFOaZMiXRTtdB0u7b4djtY6JnsjvPdUHVMg6xQt3B8fpTTWHI9A+ADjM9frzg==}
+
+  node-addon-api@8.5.0:
+    resolution: {integrity: sha512-/bRZty2mXUIFY/xU5HLvveNHlswNJej+RnxBjOMkidWfwZzgTbPG1E3K5TOxRLOR+5hX7bSofy8yf1hZevMS8A==}
+    engines: {node: ^18 || ^20 || >= 21}
 
   node-api-version@0.2.1:
     resolution: {integrity: sha512-2xP/IGGMmmSQpI1+O/k72jF/ykvZ89JeuKX3TLJAYPDVLUalrshrLHkeVcCCZqG/eEa635cr8IBYzgnDvM2O8Q==}
@@ -6419,6 +6426,8 @@ snapshots:
 
   node-addon-api@1.7.2:
     optional: true
+
+  node-addon-api@8.5.0: {}
 
   node-api-version@0.2.1:
     dependencies:
